@@ -1,0 +1,13 @@
+{
+    "recommendations": [
+        "editorconfig.editorconfig",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+				"vue.volar",
+				"deque-systems.vscode-axe-linter",
+				"naumovs.color-highlight",
+				"mikestead.dotenv",
+				"stylelint.vscode-stylelint",
+				"antfu.unocss"
+    ]
+}

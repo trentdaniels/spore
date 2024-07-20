@@ -1,0 +1,4 @@
+{
+	"extends": ["stylelint-config-standard", "stylelint-config-recommended-vue", "stylelint-config-recess-order"],
+	"ignoreFiles": [".nuxt/**/*.css", ".output/**/*.css", "assets/styles/reset.css"]
+}

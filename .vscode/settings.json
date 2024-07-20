@@ -1,0 +1,14 @@
+{
+	"editor.formatOnSave": true,
+	"eslint.validate": ["typescript", "vue"],
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"material-icon-theme.activeIconPack": "vue_vuex",
+	"editor.codeActionsOnSave": {
+		"source.fixAll": "explicit",
+		"source.organizeImports": "never",
+		"source.fixAll.stylelint": "explicit"
+	},
+	"vite.autoStart": false,
+	"typescript.tsdk": "node_modules/typescript/lib",
+	"stylelint.validate": ["css", "less", "vue"]
+}
