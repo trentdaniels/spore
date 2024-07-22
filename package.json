@@ -11,6 +11,9 @@
 	},
 	"dependencies": {
 		"@vueuse/core": "^10.11.0",
+		"dotenv": "^16.4.5",
+		"drizzle-orm": "^0.32.0",
+		"drizzle-valibot": "^0.2.0",
 		"nanoid": "^5.0.7",
 		"nuxt": "^3.12.4",
 		"replicache": "^14.2.2",
@@ -24,6 +27,7 @@
 		"@unocss/eslint-plugin": "^0.61.5",
 		"@unocss/nuxt": "^0.61.5",
 		"@vueuse/nuxt": "^10.11.0",
+		"drizzle-kit": "^0.23.0",
 		"prettier": "^3.3.3",
 		"prettier-plugin-organize-imports": "^4.0.0",
 		"stylelint": "^16.7.0",
