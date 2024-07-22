@@ -10,7 +10,11 @@
 		"postinstall": "nuxt prepare"
 	},
 	"dependencies": {
+		"@vueuse/core": "^10.11.0",
+		"nanoid": "^5.0.7",
 		"nuxt": "^3.12.4",
+		"replicache": "^14.2.2",
+		"valibot": "^0.36.0",
 		"vue": "latest"
 	},
 	"devDependencies": {
@@ -19,6 +23,7 @@
 		"@unocss/eslint-config": "^0.61.5",
 		"@unocss/eslint-plugin": "^0.61.5",
 		"@unocss/nuxt": "^0.61.5",
+		"@vueuse/nuxt": "^10.11.0",
 		"prettier": "^3.3.3",
 		"prettier-plugin-organize-imports": "^4.0.0",
 		"stylelint": "^16.7.0",

@@ -1,0 +1,40 @@
+@layer layout {
+	.layout-grid {
+		--layout-grid-min: var(--layout-column-min);
+		--layout-grid-gap: var(--layout-gap);
+		--layout-algorithm: var(--layout-type, auto-fit);
+
+		display: grid;
+		grid-template-columns: repeat(var(--layout-algorithm), minmax(min(100%, var(--layout-grid-min)), 1fr));
+		gap: var(--layout-grid-gap);
+	}
+
+	.flex-layout-grid {
+		--flex-grid-min: var(--layout-column-min);
+		--flex-grid-gap: var(--layout-gap);
+
+		display: flex;
+		flex-flow: row wrap;
+		gap: var(--flex-grid-gap);
+	}
+
+	.flex-layout-grid > * {
+		flex: 1 1 var(--flex-layout-grid-min);
+	}
+
+	:is(.layout-grid, .flex-layout-grid) > * {
+		container: var(--grid-item-container, grid-item) / inline-size;
+	}
+
+	:is(.layout-grid, .flex-layout-grid) {
+		container: var(--grid-layout-container, layout-container) / inline-size;
+	}
+
+	.block-flow {
+		container: var(--block-flow-container, block-flow-container) / inline-size;
+	}
+
+	.block-flow > * + * {
+		margin-block-start: var(--block-flow, var(--block-flow-sm));
+	}
+}

@@ -1,0 +1,21 @@
+@layer utilities {
+	.inclusively-hidden:not(:focus, :active) {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip: rect(0 0 0 0);
+		clip-path: inset(50%);
+		white-space: nowrap;
+	}
+
+	.page-container {
+		inline-size: min(var(--page-container-max, 120ch), 90dvw);
+		block-size: 100%;
+		margin-inline: auto;
+	}
+
+	.is-bold {
+		font-weight: var(--font-weight-bold);
+	}
+}
