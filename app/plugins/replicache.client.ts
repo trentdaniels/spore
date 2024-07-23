@@ -1,18 +1,23 @@
 import { nanoid } from 'nanoid'
 import { Replicache } from 'replicache'
-import { nonEmpty, object, parse, pipe, string } from 'valibot'
+import * as v from 'valibot'
 
 export default defineNuxtPlugin(() => {
-	const runtimeSchema = object({
-		replicacheLicense: pipe(string(), nonEmpty('replicacheLicense is required.')),
+	const runtimeSchema = v.object({
+		replicacheLicense: v.pipe(v.string(), v.nonEmpty('replicacheLicense is required.')),
 	})
-	const { replicacheLicense: licenseKey } = parse(runtimeSchema, useRuntimeConfig().public)
-	const userId = useLocalStorage('userId', nanoid(6))
+	const { replicacheLicense: licenseKey } = v.parse(runtimeSchema, useRuntimeConfig().public)
+	const userId = useLocalStorage('userId', nanoid())
 
 	let replicache = createReplicache(userId.value, licenseKey)
 
-	watch(userId, (userId) => {
+	const resetReplicache = async (userId: string) => {
+		await replicache.close()
 		replicache = createReplicache(userId, licenseKey)
+	}
+
+	watch(userId, (userId) => {
+		resetReplicache(userId)
 	})
 
 	return {
@@ -26,7 +31,7 @@ const createReplicache = (userId: string, licenseKey: string) =>
 	new Replicache({
 		name: userId,
 		licenseKey,
-		pullURL: `/api/pull?userId=${userId}`,
-		pushURL: `/api/push?userId=${userId}`,
+		pullURL: `/api/pull?userID=${userId}`,
+		pushURL: `/api/push?userID=${userId}`,
 		logLevel: import.meta.dev ? 'debug' : 'info',
 	})

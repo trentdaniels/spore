@@ -1,13 +1,30 @@
 import { sql } from 'drizzle-orm'
-import { pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
+import { integer, pgTable, timestamp, varchar } from 'drizzle-orm/pg-core'
 
-export const users = pgTable('users', {
-	id: uuid('id').primaryKey(),
-	email: text('email').unique().notNull(),
-	name: text('name'),
-	createdAt: timestamp('createdAt', { precision: 6, withTimezone: true }).defaultNow().notNull(),
-	updatedAt: timestamp('updatedAt', { precision: 6, withTimezone: true })
-		.defaultNow()
+export const replicacheClientGroups = pgTable('replicache_client_groups', {
+	id: varchar('id', { length: 36 }).primaryKey(),
+	userID: varchar('user_id', { length: 36 }).notNull(),
+	cvrVersion: integer('cvr_version').notNull(),
+	createdAt: timestamp('created_at', { precision: 6, withTimezone: true }).notNull().defaultNow(),
+	updatedAt: timestamp('updated_at', { precision: 6, withTimezone: true }).notNull().defaultNow(),
+})
+
+export const replicacheClients = pgTable('replicache_clients', {
+	id: varchar('id', { length: 36 }).primaryKey(),
+	clientGroupID: varchar('client_group_id', { length: 36 }).notNull(),
+	rowVersion: integer('last_mutation_id').notNull(),
+	createdAt: timestamp('created_at', { precision: 6, withTimezone: true }).notNull().defaultNow(),
+	updatedAt: timestamp('updated_at', { precision: 6, withTimezone: true })
 		.notNull()
-		.$onUpdateFn(() => sql`current_timestamp(6)`),
+		.$onUpdateFn(() => sql`now()`),
+})
+
+export const habits = pgTable('habits', {
+	id: varchar('id', { length: 36 }).primaryKey(),
+	ownerID: varchar('owner_id', { length: 36 }).notNull(),
+	rowVersion: integer('last_mutation_id').notNull(),
+	createdAt: timestamp('created_at', { precision: 6, withTimezone: true }).notNull().defaultNow(),
+	updatedAt: timestamp('updated_at', { precision: 6, withTimezone: true })
+		.notNull()
+		.$onUpdateFn(() => sql`now()`),
 })

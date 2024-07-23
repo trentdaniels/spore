@@ -16,6 +16,7 @@
 		"drizzle-valibot": "^0.2.0",
 		"nanoid": "^5.0.7",
 		"nuxt": "^3.12.4",
+		"postgres": "^3.4.4",
 		"replicache": "^14.2.2",
 		"valibot": "^0.36.0",
 		"vue": "latest"
