@@ -15,14 +15,14 @@ export const useSubscribe = <Tx, TQueryReturn, TDefaultValue>(
 	query: (tx: Tx) => Promise<TQueryReturn>,
 	options: UseSubscribeOptions<TDefaultValue> = {}
 ) => {
-	if (!r) throw new Error('[useSubscribe]: invalid cache')
-
 	const { default: defaultValue } = options
 	const querySnapshot = shallowRef<TQueryReturn | TDefaultValue | null>(defaultValue ?? null)
 
 	let unsubscribe: ReturnType<(typeof r)['subscribe']> = () => null
 
 	onMounted(() => {
+		if (!r) throw new Error('[useSubscribe]: invalid cache')
+
 		unsubscribe = r.subscribe(query, {
 			onData: (data) => {
 				querySnapshot.value = data

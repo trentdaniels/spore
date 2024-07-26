@@ -1,5 +1,6 @@
+import { replicacheClientGroups } from '@server/schema/db.schema'
+import { sql } from 'drizzle-orm'
 import * as v from 'valibot'
-import { replicacheClientGroups } from '~~/schema/db.schema'
 
 const clientGroupSchema = v.object({
 	userID: v.string(),
@@ -7,10 +8,10 @@ const clientGroupSchema = v.object({
 	id: v.string(),
 })
 
-export const getReplicacheClientGroupById = async (
+export async function getReplicacheClientGroupById(
 	tx: typeof drizzleDB,
 	{ clientGroupID, userID }: { clientGroupID: string; userID: string }
-) => {
+) {
 	try {
 		const clientGroup = await tx.query.replicacheClientGroups.findFirst({
 			where: (replicacheClientGroups, { eq }) => eq(replicacheClientGroups.id, clientGroupID),
@@ -43,26 +44,25 @@ export const getReplicacheClientGroupById = async (
 	} catch (err) {
 		throw createError({
 			statusCode: HttpStatusCode.InternalError,
-			message: '[getReplicacheClientGroupById] client group retrieval failed',
+			message: `[${getReplicacheClientGroupById.name}] client group retrieval failed`,
 			data: err,
 		})
 	}
 }
 
-export const upsertReplicacheClientGroup = async (tx: typeof drizzleDB, clientGroup: v.InferOutput<typeof clientGroupSchema>) => {
-	console.log('CLIENT_GROUP', clientGroup)
+export async function upsertReplicacheClientGroup(tx: typeof drizzleDB, clientGroup: v.InferOutput<typeof clientGroupSchema>) {
 	try {
 		await tx
 			.insert(replicacheClientGroups)
 			.values(clientGroup)
 			.onConflictDoUpdate({
 				target: replicacheClientGroups.id,
-				set: { cvrVersion: clientGroup.cvrVersion, userID: clientGroup.userID },
+				set: { cvrVersion: clientGroup.cvrVersion, userID: clientGroup.userID, updatedAt: sql`excluded.updated_at` },
 			})
 	} catch (err) {
 		throw createError({
 			statusCode: HttpStatusCode.InternalError,
-			message: '[upsertReplicacheClientGroup] client group retrieval failed',
+			message: `[${upsertReplicacheClientGroup.name}] client group retrieval failed`,
 			data: err,
 		})
 	}

@@ -16,15 +16,18 @@ export const replicacheClients = pgTable('replicache_clients', {
 	createdAt: timestamp('created_at', { precision: 6, withTimezone: true }).notNull().defaultNow(),
 	updatedAt: timestamp('updated_at', { precision: 6, withTimezone: true })
 		.notNull()
+		.defaultNow()
 		.$onUpdateFn(() => sql`now()`),
 })
 
 export const habits = pgTable('habits', {
 	id: varchar('id', { length: 36 }).primaryKey(),
-	ownerID: varchar('owner_id', { length: 36 }).notNull(),
-	rowVersion: integer('last_mutation_id').notNull(),
+	userID: varchar('user_id', { length: 36 }).notNull(),
+	name: varchar('name', { length: 100 }).notNull(),
+	rowVersion: integer('row_version').notNull(),
 	createdAt: timestamp('created_at', { precision: 6, withTimezone: true }).notNull().defaultNow(),
 	updatedAt: timestamp('updated_at', { precision: 6, withTimezone: true })
 		.notNull()
+		.defaultNow()
 		.$onUpdateFn(() => sql`now()`),
 })

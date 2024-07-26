@@ -42,7 +42,7 @@ export default defineEventHandler(async (event): Promise<PullResponse> => {
 			return null
 		}
 
-		// 11: get entities
+		// 11: get entities by diff
 		const [habits] = await Promise.all([getHabits(tx, { habitIDs: diff.habits.puts })])
 
 		// 12: changed clients - no need to re-read clients from database,
@@ -92,6 +92,7 @@ export default defineEventHandler(async (event): Promise<PullResponse> => {
 
 	// 18(i): build patch
 	const patch: PatchOperation[] = []
+	// If there is no previous cvr, start off with clearing
 	if (!prevCVR) {
 		patch.push({ op: 'clear' })
 	}

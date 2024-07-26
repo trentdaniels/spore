@@ -7,17 +7,20 @@ export default defineNuxtPlugin(() => {
 		replicacheLicense: v.pipe(v.string(), v.nonEmpty('replicacheLicense is required.')),
 	})
 	const { replicacheLicense: licenseKey } = v.parse(runtimeSchema, useRuntimeConfig().public)
-	const userId = useLocalStorage('userId', nanoid())
+	const userID = useLocalStorage('userID', nanoid())
 
-	let replicache = createReplicache(userId.value, licenseKey)
+	let replicache = createReplicache(userID.value, licenseKey)
 
-	const resetReplicache = async (userId: string) => {
+	const { data: userPoke } = useEventSource(computed(() => `/api/poke?channel=users/${userID.value}`))
+	watch(userPoke, () => replicache.pull())
+
+	const resetReplicache = async (userID: string) => {
 		await replicache.close()
-		replicache = createReplicache(userId, licenseKey)
+		replicache = createReplicache(userID, licenseKey)
 	}
 
-	watch(userId, (userId) => {
-		resetReplicache(userId)
+	watch(userID, (userID) => {
+		resetReplicache(userID)
 	})
 
 	return {
@@ -27,11 +30,12 @@ export default defineNuxtPlugin(() => {
 	}
 })
 
-const createReplicache = (userId: string, licenseKey: string) =>
-	new Replicache({
-		name: userId,
+const createReplicache = (userID: string, licenseKey: string) =>
+	new Replicache<M>({
+		name: userID,
 		licenseKey,
-		pullURL: `/api/pull?userID=${userId}`,
-		pushURL: `/api/push?userID=${userId}`,
+		mutators,
+		pullURL: `/api/pull?userID=${userID}`,
+		pushURL: `/api/push?userID=${userID}`,
 		logLevel: import.meta.dev ? 'debug' : 'info',
 	})
