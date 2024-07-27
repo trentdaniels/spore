@@ -10,13 +10,25 @@ export default defineNuxtPlugin(() => {
 	const userID = useLocalStorage('userID', nanoid())
 
 	let replicache = createReplicache(userID.value, licenseKey)
+	const tx = reactive({
+		subscribe: replicache.subscribe.bind(replicache),
+		mutate: replicache.mutate,
+	})
 
-	const { data: userPoke } = useEventSource(computed(() => `/api/poke?channel=users/${userID.value}`))
-	watch(userPoke, () => replicache.pull())
+	const { event, data } = useEventSource(
+		computed(() => `/api/poke?channel=users/${userID.value}`),
+		['poke'] as const,
+		{ autoReconnect: true }
+	)
+	watch([event, data], ([event]) => {
+		if (event === 'poke') replicache.pull()
+	})
 
 	const resetReplicache = async (userID: string) => {
 		await replicache.close()
 		replicache = createReplicache(userID, licenseKey)
+		tx.subscribe = replicache.subscribe.bind(replicache)
+		tx.mutate = replicache.mutate
 	}
 
 	watch(userID, (userID) => {
@@ -25,7 +37,7 @@ export default defineNuxtPlugin(() => {
 
 	return {
 		provide: {
-			replicache,
+			replicache: readonly(tx),
 		},
 	}
 })

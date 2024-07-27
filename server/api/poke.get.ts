@@ -9,11 +9,9 @@ export default defineEventHandler(async (event) => {
 	const stream = createEventStream(event)
 	const clientChannel = client.channel(channel)
 
-	console.log('CHANNEL', channel)
-
 	// TODO: Filter these events/tables by userId
 	clientChannel
-		.on('broadcast', { event: 'poke' }, () => stream.push(`Message @ ${new Date().toISOString()}`))
+		.on('broadcast', { event: 'poke' }, () => stream.push({ event: 'poke', data: `Message @ ${new Date().toISOString()}` }))
 		.subscribe((status) => {
 			if (status !== 'SUBSCRIBED') return
 			stream.push({ event: 'beat', data: 'subscribed to channel ' + channel })

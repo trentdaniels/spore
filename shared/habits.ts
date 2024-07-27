@@ -11,4 +11,10 @@ export type Habit = v.InferOutput<typeof habitSchema>
 
 const parseHabit = (input: unknown) => v.parse(habitSchema, input)
 
-export const { get: getHabit, list: listHabits, update: updateHabit, init: createHabit } = generate('habits', parseHabit)
+export const {
+	get: getHabit,
+	list: listHabits,
+	update: updateHabit,
+	init: createHabit,
+	delete: deleteHabit,
+} = generate('habits', parseHabit)

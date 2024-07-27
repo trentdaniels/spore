@@ -1,4 +1,5 @@
 import { habits } from '@server/schema/db.schema'
+import { and, eq } from 'drizzle-orm'
 import * as v from 'valibot'
 import { habitSchema, type Habit } from '~~/shared/habits'
 
@@ -48,10 +49,34 @@ export async function insertHabit(tx: typeof drizzleDB, userID: string, habit: H
 			userIDs: [habit.userID],
 		}
 	} catch (err) {
-		console.log('INSERT_HABIT', err)
 		throw createError({
 			statusCode: HttpStatusCode.InternalError,
 			message: `[${insertHabit.name}] habit insertion failed`,
+			data: err,
+		})
+	}
+}
+
+export async function deleteHabit(tx: typeof drizzleDB, userID: string, habitID: string): Promise<AffectedIDsByEntity> {
+	try {
+		const habit = await tx.query.habits.findFirst({
+			where: (habits, { eq, and }) => and(eq(habits.id, habitID), eq(habits.userID, userID)),
+		})
+		if (!habit)
+			throw createError({
+				statusCode: HttpStatusCode.NotFound,
+				message: 'Habit not found',
+			})
+
+		await tx.delete(habits).where(and(eq(habits.id, habitID), eq(habits.userID, userID)))
+		return {
+			habitIDs: [],
+			userIDs: [habit.userID],
+		}
+	} catch (err) {
+		throw createError({
+			statusCode: HttpStatusCode.InternalError,
+			message: `[${deleteHabit.name}] habit insertion failed`,
 			data: err,
 		})
 	}

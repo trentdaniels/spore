@@ -1,6 +1,7 @@
 import { serverSupabaseClient } from '#supabase/server'
 import * as v from 'valibot'
 import { habitSchema } from '~~/shared/habits'
+import { deleteHabit } from '../utils/entities/habits'
 
 const mutationSchema = v.object({
 	id: v.number(),
@@ -28,7 +29,6 @@ export default defineEventHandler(async (event) => {
 	for (const mutation of push.mutations) {
 		try {
 			const affected = await processMutation(userID, push.clientGroupID, mutation)
-			console.log('AFFECTED', JSON.stringify(affected, null, 2))
 
 			for (const habitID of affected.habitIDs) allAffected.habitIDs.add(habitID)
 			for (const userID of affected.userIDs) allAffected.userIDs.add(userID)
@@ -38,14 +38,14 @@ export default defineEventHandler(async (event) => {
 	}
 
 	const client = await serverSupabaseClient(event)
-	console.log('ALL_AFFECTED', JSON.stringify(allAffected, null, 2))
-	console.log('ALL_AFFECTED_USER_COUNT', allAffected.userIDs.size)
+
 	for (const habitID of allAffected.habitIDs) await client.channel(`habits/${habitID}`).send({ type: 'broadcast', event: 'poke' })
 
 	for (const userID of allAffected.userIDs) {
-		const userChannel = client.channel(`users/${userID}`).subscribe((status) => {
+		const userChannel = client.channel(`users/${userID}`).subscribe(async (status) => {
 			if (status !== 'SUBSCRIBED') return
-			userChannel.send({ type: 'broadcast', event: 'poke' })
+			await userChannel.send({ type: 'broadcast', event: 'poke' })
+			userChannel.unsubscribe()
 		})
 	}
 
@@ -121,7 +121,9 @@ async function processMutation(
 async function mutate(tx: typeof drizzleDB, userID: string, mutation: Mutation): Promise<AffectedIDsByEntity> {
 	switch (mutation.name) {
 		case 'createHabit':
-			return await insertHabit(tx, userID, v.parse(habitSchema, mutation.args))
+			return insertHabit(tx, userID, v.parse(habitSchema, mutation.args))
+		case 'deleteHabit':
+			return deleteHabit(tx, userID, v.parse(v.string(), mutation.args))
 		default:
 			return {
 				habitIDs: [],

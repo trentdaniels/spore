@@ -19,13 +19,19 @@
 		})
 	}
 
+	const deleteHabit = (habitID: string) => {
+		rep.mutate.deleteHabit(habitID)
+	}
+
+	watchEffect(() => console.log(rep))
+
 	const habits = useSubscribe(
 		rep,
 		async (tx) => {
 			const habitList = await listHabits(tx)
 			return habitList.sort((a, b) => a.name.localeCompare(b.name))
 		},
-		{ default: [] }
+		{ defaultValue: [] }
 	)
 </script>
 
@@ -37,7 +43,7 @@
 
 	<p>Habits:</p>
 	<ul>
-		<li v-for="habit of habits" :key="habit.id">
+		<li @click="deleteHabit(habit.id)" v-for="habit of habits" :key="habit.id">
 			{{ habit.name }}
 		</li>
 	</ul>
