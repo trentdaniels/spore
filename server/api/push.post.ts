@@ -1,7 +1,6 @@
 import { serverSupabaseClient } from '#supabase/server'
 import * as v from 'valibot'
 import { habitSchema } from '~~/shared/habits'
-import { deleteHabit } from '../utils/entities/habits'
 
 const mutationSchema = v.object({
 	id: v.number(),
@@ -18,22 +17,24 @@ const pushBody = v.object({
 })
 
 export default defineEventHandler(async (event) => {
+	const { id: userID } = await ensureUser(event)
+
 	const push = await getValibotBody(event, pushBody)
-	const { userID } = await getValibotQuery(event, v.object({ userID: v.string() }))
 
 	const allAffected = {
 		habitIDs: new Set<string>(),
 		userIDs: new Set<string>(),
 	}
 
+	const db = useDrizzleDB()
 	for (const mutation of push.mutations) {
 		try {
-			const affected = await processMutation(userID, push.clientGroupID, mutation)
+			const affected = await processMutation(db, userID, push.clientGroupID, mutation)
 
 			for (const habitID of affected.habitIDs) allAffected.habitIDs.add(habitID)
 			for (const userID of affected.userIDs) allAffected.userIDs.add(userID)
 		} catch (err) {
-			await processMutation(userID, push.clientGroupID, mutation, true)
+			await processMutation(db, userID, push.clientGroupID, mutation, true)
 		}
 	}
 
@@ -56,6 +57,7 @@ export default defineEventHandler(async (event) => {
 // Implements the push algorithm from
 // https://doc.replicache.dev/strategies/row-version#push
 async function processMutation(
+	db: Tx,
 	userID: string,
 	clientGroupID: string,
 	mutation: Mutation,
@@ -64,7 +66,7 @@ async function processMutation(
 	errorMode = false
 ) {
 	// 2: beginTransaction
-	return await drizzleDB.transaction(async (tx) => {
+	return await db.transaction(async (tx) => {
 		let affected: AffectedIDsByEntity = { habitIDs: [], userIDs: [] }
 
 		// 3: `getClientGroup(body.clientGroupID)`
@@ -118,7 +120,7 @@ async function processMutation(
 	})
 }
 
-async function mutate(tx: typeof drizzleDB, userID: string, mutation: Mutation): Promise<AffectedIDsByEntity> {
+async function mutate(tx: Tx, userID: string, mutation: Mutation): Promise<AffectedIDsByEntity> {
 	switch (mutation.name) {
 		case 'createHabit':
 			return insertHabit(tx, userID, v.parse(habitSchema, mutation.args))

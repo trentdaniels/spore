@@ -1,6 +1,7 @@
 import { type H3Event } from 'h3'
 import type { BaseIssue, BaseSchema } from 'valibot'
 import * as v from 'valibot'
+import { createBadRequest } from './http'
 
 export const getValibotQuery = async <TSchema extends BaseSchema<unknown, unknown, BaseIssue<unknown>>>(
 	event: H3Event,
@@ -24,10 +25,3 @@ export const getValibotBody = async <TSchema extends BaseSchema<unknown, unknown
 		throw createBadRequest(error)
 	}
 }
-
-const createBadRequest = (error: unknown) =>
-	createError({
-		statusCode: HttpStatusCode.BadRequest,
-		statusText: 'Bad Request',
-		data: error,
-	})

@@ -21,8 +21,7 @@ export const useSubscribe = <Tx, TQueryReturn>(
 	let unsubscribe: () => void = () => null
 
 	watchEffect(() => {
-		console.log('called')
-		if (!isClient) return
+		if (!isClient || !r) return
 		unsubscribe()
 		unsubscribe = r.subscribe(query, {
 			onData: (data) => (querySnapshot.value = data),

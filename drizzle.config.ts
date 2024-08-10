@@ -4,12 +4,12 @@ import { defineConfig } from 'drizzle-kit'
 config()
 
 export default defineConfig({
-	schema: ['./server/schema/**/*.schema.ts'],
-	out: './supabase/migrations',
+	schema: ['./server/database/**/*.schema.ts'],
+	out: './server/database/migrations',
 	dialect: 'postgresql',
 	dbCredentials: {
-		url: process.env.DATABASE_URL!,
+		url: process.env.DATABASE_DIRECT_URL!,
 	},
-	verbose: process.env.NODE_ENV === 'development',
+	verbose: true,
 	strict: true,
 })

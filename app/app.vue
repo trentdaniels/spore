@@ -14,12 +14,7 @@
 	</NuxtLayout>
 </template>
 
-<script lang="ts" setup>
-	// TODO: Put this in a layout that's authorized
-	const replicache = useReplicache()
-
-	onUnmounted(() => replicache.close())
-</script>
+<script lang="ts" setup></script>
 
 <style scoped>
 	div {

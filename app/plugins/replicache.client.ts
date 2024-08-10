@@ -1,43 +1,52 @@
-import { nanoid } from 'nanoid'
 import { Replicache } from 'replicache'
 import * as v from 'valibot'
 
+type Tx = Pick<Replicache<M>, 'subscribe' | 'mutate'>
+
+const runtimeSchema = v.object({
+	replicacheLicense: v.pipe(v.string(), v.nonEmpty('replicacheLicense is required.')),
+})
+
 export default defineNuxtPlugin(() => {
-	const runtimeSchema = v.object({
-		replicacheLicense: v.pipe(v.string(), v.nonEmpty('replicacheLicense is required.')),
-	})
 	const { replicacheLicense: licenseKey } = v.parse(runtimeSchema, useRuntimeConfig().public)
-	const userID = useLocalStorage('userID', nanoid())
+	let replicacheInstance: Replicache<M>
+	const replicache = ref<Tx>({} as Tx)
 
-	let replicache = createReplicache(userID.value, licenseKey)
-	const tx = reactive({
-		subscribe: replicache.subscribe.bind(replicache),
-		mutate: replicache.mutate,
-	})
+	const user = useSupabaseUser()
 
-	const { event, data } = useEventSource(
-		computed(() => `/api/poke?channel=users/${userID.value}`),
+	const {
+		event,
+		data,
+		open: openPokeStream,
+		close: closePokeStream,
+	} = useEventSource(
+		computed(() => `/api/poke?channel=users/${user.value.id}`),
 		['poke'] as const,
-		{ autoReconnect: true }
+		{ autoReconnect: true, immediate: false }
 	)
 	watch([event, data], ([event]) => {
-		if (event === 'poke') replicache.pull()
+		if (event === 'poke') replicacheInstance.pull()
 	})
 
-	const resetReplicache = async (userID: string) => {
-		await replicache.close()
-		replicache = createReplicache(userID, licenseKey)
-		tx.subscribe = replicache.subscribe.bind(replicache)
-		tx.mutate = replicache.mutate
-	}
+	watchEffect((onCleanup) => {
+		if (!user.value) return
+		openPokeStream()
 
-	watch(userID, (userID) => {
-		resetReplicache(userID)
+		replicacheInstance = createReplicache(user.value.id, licenseKey)
+		replicache.value = {
+			subscribe: replicacheInstance.subscribe.bind(replicacheInstance),
+			mutate: replicacheInstance.mutate,
+		}
+
+		onCleanup(() => {
+			if (replicacheInstance) replicacheInstance.close()
+			closePokeStream()
+		})
 	})
 
 	return {
 		provide: {
-			replicache: readonly(tx),
+			replicache: readonly(toReactive(replicache)),
 		},
 	}
 })
@@ -47,7 +56,7 @@ const createReplicache = (userID: string, licenseKey: string) =>
 		name: userID,
 		licenseKey,
 		mutators,
-		pullURL: `/api/pull?userID=${userID}`,
-		pushURL: `/api/push?userID=${userID}`,
+		pullURL: `/api/pull`,
+		pushURL: `/api/push`,
 		logLevel: import.meta.dev ? 'debug' : 'info',
 	})

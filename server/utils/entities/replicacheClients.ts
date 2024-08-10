@@ -1,6 +1,6 @@
-import { replicacheClients } from '@server/schema/db.schema'
 import { sql } from 'drizzle-orm'
 import * as v from 'valibot'
+import { replicacheClients } from '~~/server/database/db.schema'
 
 const clientSchema = v.object({
 	id: v.string(),
@@ -10,7 +10,7 @@ const clientSchema = v.object({
 
 type ClientRecord = v.InferInput<typeof clientSchema>
 
-export const searchReplicacheClients = async (tx: typeof drizzleDB, { clientGroupID }: { clientGroupID: string }) => {
+export const searchReplicacheClients = async (tx: Tx, { clientGroupID }: { clientGroupID: string }) => {
 	try {
 		const clients = await tx.query.replicacheClients.findMany({
 			where: (replicacheClients, { eq }) => eq(replicacheClients.clientGroupID, clientGroupID),
@@ -27,7 +27,7 @@ export const searchReplicacheClients = async (tx: typeof drizzleDB, { clientGrou
 }
 
 export async function getReplicacheClient(
-	tx: typeof drizzleDB,
+	tx: Tx,
 	{ clientID, clientGroupID }: { clientID: string; clientGroupID: string }
 ): Promise<ClientRecord> {
 	const client = await tx.query.replicacheClients.findFirst({
@@ -52,7 +52,7 @@ export async function getReplicacheClient(
 	return parsedClient
 }
 
-export async function upsertReplicacheClient(tx: typeof drizzleDB, client: ClientRecord) {
+export async function upsertReplicacheClient(tx: Tx, client: ClientRecord) {
 	try {
 		await tx
 			.insert(replicacheClients)

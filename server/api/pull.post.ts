@@ -5,7 +5,7 @@ import * as v from 'valibot'
 const cookieSchema = v.object({ order: v.number(), cvrID: v.string() })
 
 export default defineEventHandler(async (event): Promise<PullResponse> => {
-	const { userID } = await getValibotQuery(event, v.object({ userID: v.pipe(v.string(), v.nonEmpty('userID is required.')) }))
+	const { id: userID } = await ensureUser(event)
 
 	const { clientGroupID, cookie } = await getValibotBody(event, v.object({ clientGroupID: v.string(), cookie: v.nullable(cookieSchema) }))
 

@@ -23,4 +23,11 @@ export default defineNuxtConfig({
 	imports: {
 		dirs: ['shared/**'],
 	},
+	supabase: {
+		redirectOptions: {
+			login: '/login',
+			callback: '/confirm',
+			cookieRedirect: true,
+		},
+	},
 })

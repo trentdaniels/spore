@@ -2,6 +2,7 @@ import { serverSupabaseClient } from '#supabase/server'
 import * as v from 'valibot'
 
 export default defineEventHandler(async (event) => {
+	await ensureUser(event)
 	const { channel } = await getValibotQuery(event, v.object({ channel: v.pipe(v.string(), v.nonEmpty()) }))
 
 	const client = await serverSupabaseClient(event)
@@ -9,12 +10,11 @@ export default defineEventHandler(async (event) => {
 	const stream = createEventStream(event)
 	const clientChannel = client.channel(channel)
 
-	// TODO: Filter these events/tables by userId
 	clientChannel
 		.on('broadcast', { event: 'poke' }, () => stream.push({ event: 'poke', data: `Message @ ${new Date().toISOString()}` }))
 		.subscribe((status) => {
 			if (status !== 'SUBSCRIBED') return
-			stream.push({ event: 'beat', data: 'subscribed to channel ' + channel })
+			stream.push({ event: 'beat', data: `subscribed to channel ${channel}` })
 		})
 
 	stream.onClosed(async () => {
