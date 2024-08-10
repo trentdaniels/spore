@@ -1,12 +1,11 @@
 import 'dotenv/config'
-import { drizzle as _drizzle } from 'drizzle-orm/postgres-js'
+import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
 import * as schema from '../database/db.schema'
 
-export type Tx = ReturnType<typeof useDrizzleDB>
+export type Tx = ReturnType<typeof useDB>
 
-const drizzleDB = _drizzle(postgres(process.env.DATABASE_URL!, { prepare: false }), { logger: true, schema })
-
-export const useDrizzleDB = () => {
-	return drizzleDB
+export const useDB = () => {
+	const db = drizzle(postgres(process.env.DATABASE_URL!, { prepare: false }), { logger: true, schema })
+	return db
 }
