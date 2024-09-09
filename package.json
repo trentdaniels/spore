@@ -16,7 +16,7 @@
 		"drizzle-orm": "^0.32.1",
 		"drizzle-valibot": "^0.2.0",
 		"nanoid": "^5.0.7",
-		"nuxt": "^3.13.0",
+		"nuxt": "^3.13.1",
 		"postgres": "^3.4.4",
 		"radix-vue": "^1.9.3",
 		"replicache": "^14.2.2",
