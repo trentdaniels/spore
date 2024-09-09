@@ -1,6 +1,6 @@
 <template>
 	<main id="main-content" class="centered-layout">
-		<slot />
+		<slot></slot>
 	</main>
 </template>
 

@@ -7,29 +7,23 @@ type Subscribable<Tx> = {
 
 export type UseSubscribeOptions<TDefault> = {
 	/** Default can already be undefined since it is an unbounded type parameter. */
-	defaultValue?: TDefault
+	defaultValue: TDefault
 }
 
 export const useSubscribe = <Tx, TQueryReturn>(
 	r: Reactive<Subscribable<Tx>>,
 	query: (tx: Tx) => Promise<TQueryReturn>,
-	options: UseSubscribeOptions<TQueryReturn | null> = {}
+	options: UseSubscribeOptions<TQueryReturn>
 ) => {
-	const { defaultValue = null } = options
-	const querySnapshot = shallowRef<TQueryReturn | null>(defaultValue)
+	const { defaultValue } = options
+	const querySnapshot = shallowRef(defaultValue)
 
-	let unsubscribe: () => void = () => null
-
-	watchEffect(() => {
+	watchEffect((onCleanup) => {
 		if (!isClient || !r) return
-		unsubscribe()
-		unsubscribe = r.subscribe(query, {
+		const unsubscribe = r.subscribe(query, {
 			onData: (data) => (querySnapshot.value = data),
 		})
-	})
-
-	onUnmounted(() => {
-		unsubscribe()
+		onCleanup(unsubscribe)
 	})
 
 	return querySnapshot

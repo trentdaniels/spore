@@ -7,35 +7,14 @@
 </script>
 
 <template>
-	<div class="app-layout">
-		<header class="app-header px-4">
-			<p class="text-size-xl"><NuxtLink to="/">Spore</NuxtLink></p>
-			<button class="sign-out" @click="signOut">Sign Out</button>
+	<div class="min-block-100% flex flex-col gap-4 px-4">
+		<header class="flex gap-2 flex-items-baseline">
+			<NuxtLink class="text-size-xl" to="/">Spore</NuxtLink>
+			<NuxtLink class="mis-auto" to="/create">Create Habit</NuxtLink>
+			<button @click="signOut">Sign Out</button>
 		</header>
-		<main id="main-content" class="main-content">
-			<slot />
+		<main id="main-content" class="flex-1">
+			<slot></slot>
 		</main>
 	</div>
 </template>
-
-<style scoped>
-	.app-header {
-		display: flex;
-		place-items: baseline;
-
-		& .sign-out {
-			margin-inline-start: auto;
-		}
-	}
-
-	.app-layout {
-		display: flex;
-		flex-direction: column;
-		gap: min(1rem, 2vmax);
-		min-block-size: 100%;
-	}
-
-	.main-content {
-		flex: 1;
-	}
-</style>

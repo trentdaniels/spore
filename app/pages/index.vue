@@ -16,7 +16,7 @@
 		;(e.target as HTMLFormElement).reset()
 		await rep.mutate.createHabit({
 			name: formData.get('name') as string,
-			id: nanoid(36),
+			id: nanoid(),
 			userID: user.value.id,
 		})
 	}
@@ -25,7 +25,7 @@
 		rep,
 		async (tx) => {
 			const habitList = await listHabits(tx)
-			return habitList.sort((a, b) => a.name.localeCompare(b.name))
+			return habitList.toSorted((a, b) => a.name.localeCompare(b.name))
 		},
 		{ defaultValue: [] }
 	)
@@ -39,8 +39,16 @@
 			<button>Create Habit</button>
 		</form>
 		<p>Habits:</p>
-		<ul>
-			<li v-for="habit of habits" :key="habit.id" @click="deleteHabit(habit.id)">
+		<ul class="flex flex-col gap-2">
+			<li v-if="!habits?.length">You don't have any habits! Try <NuxtLink to="/create">creating one here</NuxtLink>.</li>
+
+			<li
+				v-for="habit of habits"
+				v-else
+				:key="habit.id"
+				class="bg-emerald px-[min(1rem,16px)] py-[min(1rem,16px)]"
+				@click="deleteHabit(habit.id)"
+			>
 				{{ habit.name }}
 			</li>
 		</ul>

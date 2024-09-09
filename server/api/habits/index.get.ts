@@ -3,7 +3,7 @@ import { habitSchema } from '~~/shared/habits'
 
 export default defineEventHandler(async (event) => {
 	const user = await ensureUser(event)
-	const db = useDrizzleDB()
+	const db = useDB()
 
 	const habits = await db.query.habits.findMany({
 		where: (habits, { eq }) => eq(habits.userID, user.id),

@@ -124,4 +124,9 @@
 	[hidden] {
 		display: none;
 	}
+
+	:where(fieldset) {
+		display: block;
+		border: none;
+	}
 }

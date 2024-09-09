@@ -8,7 +8,7 @@ const clientSchema = v.object({
 	rowVersion: v.number(),
 })
 
-type ClientRecord = v.InferInput<typeof clientSchema>
+type ClientRecord = v.InferOutput<typeof clientSchema>
 
 export const searchReplicacheClients = async (tx: Tx, { clientGroupID }: { clientGroupID: string }) => {
 	try {

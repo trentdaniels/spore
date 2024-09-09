@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
 		userIDs: new Set<string>(),
 	}
 
-	const db = useDrizzleDB()
+	const db = useDB()
 	for (const mutation of push.mutations) {
 		try {
 			const affected = await processMutation(db, userID, push.clientGroupID, mutation)

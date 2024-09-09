@@ -17,7 +17,7 @@ export default defineEventHandler(async (event): Promise<PullResponse> => {
 	const baseCVR: CVR = prevCVR ?? {}
 
 	// 3: begin transaction
-	const result = await useDrizzleDB().transaction(async (tx) => {
+	const result = await useDB().transaction(async (tx) => {
 		// 4-5: getClientGroup(body.clientGroupID), verify user
 		const baseClientGroupRecord = await getReplicacheClientGroupById(tx, { userID, clientGroupID })
 
@@ -113,7 +113,7 @@ export default defineEventHandler(async (event): Promise<PullResponse> => {
 	}
 
 	// 18(ii): construct cookie
-	const newCookie: v.InferInput<typeof cookieSchema> = {
+	const newCookie: v.InferOutput<typeof cookieSchema> = {
 		order: nextCVRVersion,
 		cvrID,
 	}
