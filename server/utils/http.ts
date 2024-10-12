@@ -13,33 +13,40 @@ export const HttpStatusCode = {
 	InternalError: 500,
 } as const
 
-export const createBadRequest = (error: unknown) =>
+export const createBadRequestError = (error: unknown) =>
 	createError({
 		statusCode: HttpStatusCode.BadRequest,
 		statusText: 'Bad Request',
-		data: error,
+		cause: error,
 	})
 
-export const createUnauthorizedRequest = (error?: unknown) =>
+export const createUnauthorizedRequestError = (error?: unknown) =>
 	createError({
 		statusCode: HttpStatusCode.Unauthorized,
 		statusText: 'Unauthorized',
-		data: error,
+		cause: error,
 	})
 
-export const createUnauthenticatedRequest = (error?: unknown) =>
+export const createUnauthenticatedRequestError = (error?: unknown) =>
 	createError({
 		statusCode: HttpStatusCode.Unauthorized,
 		statusText: 'Unauthenticated',
-		data: error,
+		cause: error,
+	})
+
+export const createInternalServerRequestError = (error?: unknown) =>
+	createError({
+		statusCode: HttpStatusCode.InternalError,
+		statusText: 'Internal Servier Error',
+		cause: error,
 	})
 
 export const ensureUser = async (event: H3Event) => {
 	const user = await serverSupabaseUser(event)
-	if (!user) throw createUnauthenticatedRequest()
+	if (!user) throw createUnauthenticatedRequestError()
 	return user
 }
 
 export const ensureUserOwnsEntity = (user: User, userIdToCompare: string) => {
-	if (user.id !== userIdToCompare) throw createUnauthorizedRequest()
+	if (user.id !== userIdToCompare) throw createUnauthorizedRequestError()
 }

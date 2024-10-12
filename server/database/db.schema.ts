@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm'
-import { integer, pgTable, timestamp, varchar } from 'drizzle-orm/pg-core'
+import { integer, pgEnum, pgTable, timestamp, varchar } from 'drizzle-orm/pg-core'
 
 export const replicacheClientGroups = pgTable('replicache_client_groups', {
 	id: varchar('id', { length: 36 }).primaryKey(),
@@ -19,6 +19,9 @@ export const replicacheClients = pgTable('replicache_clients', {
 		.defaultNow()
 		.$onUpdateFn(() => sql`now()`),
 })
+
+export const weeklyFrequencies = pgEnum('weekly_frequencies', ['weekly', 'biweekly', 'monthly'])
+export const dailyFrequencies = pgEnum('daily_frequencies', ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'])
 
 export const habits = pgTable('habits', {
 	id: varchar('id', { length: 36 }).primaryKey(),

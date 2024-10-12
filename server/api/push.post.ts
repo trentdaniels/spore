@@ -101,7 +101,7 @@ async function processMutation(
 				// 10(ii)(a-c): log error, abort, and retry
 				throw createError({
 					statusCode: HttpStatusCode.InternalError,
-					data: e,
+					cause: e,
 					message: `Error executing mutation: ${JSON.stringify(mutation)}: ${e}`,
 				})
 			}

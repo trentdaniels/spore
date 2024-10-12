@@ -42,7 +42,7 @@ export async function getReplicacheClientGroupById(tx: Tx, { clientGroupID, user
 		throw createError({
 			statusCode: HttpStatusCode.InternalError,
 			message: `[${getReplicacheClientGroupById.name}] client group retrieval failed`,
-			data: err,
+			cause: err,
 		})
 	}
 }
@@ -60,7 +60,7 @@ export async function upsertReplicacheClientGroup(tx: Tx, clientGroup: v.InferOu
 		throw createError({
 			statusCode: HttpStatusCode.InternalError,
 			message: `[${upsertReplicacheClientGroup.name}] client group retrieval failed`,
-			data: err,
+			cause: err,
 		})
 	}
 }

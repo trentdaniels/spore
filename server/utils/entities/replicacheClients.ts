@@ -21,7 +21,7 @@ export const searchReplicacheClients = async (tx: Tx, { clientGroupID }: { clien
 		throw createError({
 			statusCode: HttpStatusCode.InternalError,
 			message: `[${searchReplicacheClients.name}] client group retrieval failed`,
-			data: err,
+			cause: err,
 		})
 	}
 }
@@ -62,11 +62,10 @@ export async function upsertReplicacheClient(tx: Tx, client: ClientRecord) {
 				set: { rowVersion: client.rowVersion, clientGroupID: client.clientGroupID, updatedAt: sql`excluded.updated_at` },
 			})
 	} catch (err) {
-		console.log('ERR', err)
 		throw createError({
 			statusCode: HttpStatusCode.InternalError,
 			message: `[${upsertReplicacheClient.name}] client group retrieval failed`,
-			data: err,
+			cause: err,
 		})
 	}
 }

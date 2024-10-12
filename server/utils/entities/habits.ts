@@ -14,7 +14,7 @@ export async function searchHabits(tx: Tx, { userID }: { userID: string }) {
 		throw createError({
 			statusCode: HttpStatusCode.InternalError,
 			message: `[${searchHabits.name}] habits retrieval failed`,
-			data: err,
+			cause: err,
 		})
 	}
 }
@@ -30,7 +30,7 @@ export async function getHabits(tx: Tx, { habitIDs }: { habitIDs: string[] }) {
 		throw createError({
 			statusCode: HttpStatusCode.InternalError,
 			message: `[${getHabits.name}] habits retrieval failed`,
-			data: err,
+			cause: err,
 		})
 	}
 }
@@ -52,7 +52,7 @@ export async function insertHabit(tx: Tx, userID: string, habit: Habit): Promise
 		throw createError({
 			statusCode: HttpStatusCode.InternalError,
 			message: `[${insertHabit.name}] habit insertion failed`,
-			data: err,
+			cause: err,
 		})
 	}
 }
@@ -77,7 +77,7 @@ export async function deleteHabit(tx: Tx, userID: string, habitID: string): Prom
 		throw createError({
 			statusCode: HttpStatusCode.InternalError,
 			message: `[${deleteHabit.name}] habit insertion failed`,
-			data: err,
+			cause: err,
 		})
 	}
 }

@@ -17,7 +17,7 @@
 		await rep.mutate.createHabit({
 			name: formData.get('name') as string,
 			id: nanoid(),
-			userID: user.value.id,
+			userID: user.value!.id,
 		})
 	}
 

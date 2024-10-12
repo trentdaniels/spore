@@ -20,6 +20,5 @@
 	div {
 		display: block;
 		color: black;
-		text-align: center;
 	}
 </style>

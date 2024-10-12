@@ -1,14 +1,17 @@
-import { config } from 'dotenv'
 import { defineConfig } from 'drizzle-kit'
+import * as v from 'valibot'
 
-config()
+const { DATABASE_DIRECT_URL } = v.parse(
+	v.object({ DATABASE_DIRECT_URL: v.pipe(v.string('MISSING DATABASE_DIRECT_URL'), v.nonEmpty()) }),
+	process.env
+)
 
 export default defineConfig({
 	schema: ['./server/database/**/*.schema.ts'],
 	out: './server/database/migrations',
 	dialect: 'postgresql',
 	dbCredentials: {
-		url: process.env.DATABASE_DIRECT_URL!,
+		url: DATABASE_DIRECT_URL,
 	},
 	verbose: true,
 	strict: true,
