@@ -27,6 +27,9 @@ export const habits = pgTable('habits', {
 	id: varchar('id', { length: 36 }).primaryKey(),
 	userID: varchar('user_id', { length: 36 }).notNull(),
 	name: varchar('name', { length: 100 }).notNull(),
+	description: varchar('description'),
+	weeklyFrequency: weeklyFrequencies('weekly_frequency').default('weekly'),
+	dailyFrequency: dailyFrequencies('daily_frequency').array(),
 	rowVersion: integer('row_version').notNull(),
 	createdAt: timestamp('created_at', { precision: 6, withTimezone: true }).notNull().defaultNow(),
 	updatedAt: timestamp('updated_at', { precision: 6, withTimezone: true })

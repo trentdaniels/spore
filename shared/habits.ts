@@ -1,14 +1,15 @@
 import { generate } from '@rocicorp/rails'
 import * as v from 'valibot'
+import { dailyFrequencies, weeklyFrequencies } from './db.schema'
 
-const dailyFrequencySchema = v.picklist(['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'])
+export const dailyFrequencySchema = v.picklist(dailyFrequencies.enumValues)
 
-const weeklyFrequencySchema = v.picklist(['weekly', 'biweekly', 'monthly'])
+const weeklyFrequencySchema = v.picklist(weeklyFrequencies.enumValues)
 
 export const habitSchema = v.object({
 	id: v.string(),
 	userID: v.string(),
-	description: v.string(),
+	description: v.nullable(v.string()),
 	name: v.string(),
 	dailyFrequency: v.array(dailyFrequencySchema),
 	weeklyFrequency: weeklyFrequencySchema,

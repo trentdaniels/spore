@@ -1,9 +1,9 @@
 import { and, eq } from 'drizzle-orm'
 import * as v from 'valibot'
-import { habits } from '~~/server/database/db.schema'
+import { habits } from '~~/shared/db.schema'
 import { habitSchema, type Habit } from '~~/shared/habits'
 
-export async function searchHabits(tx: Tx, { userID }: { userID: string }) {
+export async function searchHabits(tx: TxTransaction, { userID }: { userID: string }) {
 	try {
 		const clients = await tx.query.habits.findMany({
 			where: (habits, { eq }) => eq(habits.userID, userID),
@@ -19,7 +19,7 @@ export async function searchHabits(tx: Tx, { userID }: { userID: string }) {
 	}
 }
 
-export async function getHabits(tx: Tx, { habitIDs }: { habitIDs: string[] }) {
+export async function getHabits(tx: TxTransaction, { habitIDs }: { habitIDs: string[] }) {
 	try {
 		const habits = await tx.query.habits.findMany({
 			where: (habits, { inArray }) => inArray(habits.id, habitIDs),
@@ -35,7 +35,7 @@ export async function getHabits(tx: Tx, { habitIDs }: { habitIDs: string[] }) {
 	}
 }
 
-export async function insertHabit(tx: Tx, userID: string, habit: Habit): Promise<AffectedIDsByEntity> {
+export async function insertHabit(tx: TxTransaction, userID: string, habit: Habit): Promise<AffectedIDsByEntity> {
 	try {
 		if (habit.userID !== userID)
 			throw createError({
@@ -57,7 +57,7 @@ export async function insertHabit(tx: Tx, userID: string, habit: Habit): Promise
 	}
 }
 
-export async function deleteHabit(tx: Tx, userID: string, habitID: string): Promise<AffectedIDsByEntity> {
+export async function deleteHabit(tx: TxTransaction, userID: string, habitID: string): Promise<AffectedIDsByEntity> {
 	try {
 		const habit = await tx.query.habits.findFirst({
 			where: (habits, { eq, and }) => and(eq(habits.id, habitID), eq(habits.userID, userID)),

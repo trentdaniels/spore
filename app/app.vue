@@ -3,10 +3,10 @@
 	<NuxtLayout>
 		<NuxtErrorBoundary>
 			<!-- TODO: Add some UX to this error -->
-			<template #error="{ error }">
+			<template #error="{ error, clearError }">
 				<p>Oh no! Something went wrong</p>
 				<code>{{ error }}</code>
-				<button @click="clearError(error)">Try Again</button>
+				<button @click="clearError">Try Again</button>
 			</template>
 
 			<NuxtPage />

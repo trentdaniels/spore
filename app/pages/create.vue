@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 	import { nanoid } from 'nanoid'
 	import * as v from 'valibot'
-	import { habitSchema, type DailyFrequency } from '~~/shared/habits'
+	import { dailyFrequencySchema, habitSchema, type DailyFrequency } from '~~/shared/habits'
+	import { dailyFrequencies, weeklyFrequencies } from '~~/shared/db.schema'
 
 	useHead({ title: 'Create a Habit' })
 
@@ -11,17 +12,31 @@
 	const days = ref<DailyFrequency[]>([])
 
 	const onSubmit = async (e: Event) => {
-		const formData = Object.fromEntries(new FormData(e.target as HTMLFormElement).entries())
-		const result = v.safeParse(v.pick(habitSchema, ['name', 'description', 'weeklyFrequency']), formData)
-		if (result.success)
+		const formData = new FormData(e.target as HTMLFormElement)
+		formData.append('dailyFrequency', JSON.stringify(toRaw(days.value)))
+
+		const schema = v.object({
+			...v.pick(habitSchema, ['name', 'description', 'weeklyFrequency']).entries,
+			dailyFrequency: v.pipe(
+				v.string(),
+				v.transform((arrStr) => JSON.parse(arrStr)),
+				habitSchema.entries.dailyFrequency
+			),
+		})
+
+		const result = v.safeParse(schema, Object.fromEntries(formData.entries()))
+		if (result.success && user.value) {
+			const habitId = nanoid()
 			await rep.mutate.createHabit({
 				name: result.output.name,
-				id: nanoid(),
-				userID: user.value!.id,
+				id: habitId,
+				userID: user.value.id,
 				description: result.output.description,
-				dailyFrequency: days.value,
+				dailyFrequency: toRaw(days.value),
 				weeklyFrequency: result.output.weeklyFrequency,
 			})
+			await navigateTo(`/habits/${habitId}`)
+		}
 	}
 </script>
 
@@ -48,22 +63,24 @@
 					<div class="flex flex-col gap-1">
 						<p id="days-of-the-week">Days of the week</p>
 						<ToggleGroupRoot v-model="days" aria-labelledby="days-of-the-week">
-							<ToggleGroupItem class="data-[state=on]:bg-dark data-[state=on]:text-white" value="sunday">Sun</ToggleGroupItem>
-							<ToggleGroupItem class="data-[state=on]:bg-dark data-[state=on]:text-white" value="monday">Mon</ToggleGroupItem>
-							<ToggleGroupItem class="data-[state=on]:bg-dark data-[state=on]:text-white" value="tuesday">Tue</ToggleGroupItem>
-							<ToggleGroupItem class="data-[state=on]:bg-dark data-[state=on]:text-white" value="wednesday">Wed</ToggleGroupItem>
-							<ToggleGroupItem class="data-[state=on]:bg-dark data-[state=on]:text-white" value="thursday">Thurs</ToggleGroupItem>
-							<ToggleGroupItem class="data-[state=on]:bg-dark data-[state=on]:text-white" value="friday">Fri</ToggleGroupItem>
-							<ToggleGroupItem class="data-[state=on]:bg-dark data-[state=on]:text-white" value="saturday">Sat</ToggleGroupItem>
+							<ToggleGroupItem
+								v-for="dailyFrequency of dailyFrequencies.enumValues"
+								:key="dailyFrequency"
+								class="data-[state=on]:bg-dark data-[state=on]:text-white"
+								:value="dailyFrequency"
+							>
+								{{ dailyFrequency.charAt(0).toLocaleUpperCase() + dailyFrequency.slice(1) }}
+							</ToggleGroupItem>
 						</ToggleGroupRoot>
 					</div>
 
 					<div class="flex flex-col gap-1">
 						<label for="weekly-frequency">Frequency</label>
-						<select id="weekly-frequency" name="weekly-freqency" required>
-							<option value="weekly">Weekly</option>
-							<option value="biweekly">Biweekly</option>
-							<option value="monthly">Monthly</option>
+						<select id="weekly-frequency" name="weeklyFrequency" required>
+							<option value="" selected disabled>Select Weekly Frequency</option>
+							<option v-for="weeklyFrequency of weeklyFrequencies.enumValues" :key="weeklyFrequency" :value="weeklyFrequency">
+								{{ weeklyFrequency.charAt(0).toLocaleUpperCase() + weeklyFrequency.slice(1) }}
+							</option>
 						</select>
 					</div>
 				</fieldset>

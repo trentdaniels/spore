@@ -20,7 +20,7 @@ export default defineNuxtPlugin(() => {
 		open: openPokeStream,
 		close: closePokeStream,
 	} = useEventSource(
-		computed(() => `/api/poke?channel=users/${user.value.id}`),
+		computed(() => `/api/poke?channel=users/${user.value?.id}`),
 		['poke'] as const,
 		{ autoReconnect: true, immediate: false }
 	)

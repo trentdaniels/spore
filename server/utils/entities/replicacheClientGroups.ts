@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm'
 import * as v from 'valibot'
-import { replicacheClientGroups } from '~~/server/database/db.schema'
+import { replicacheClientGroups } from '~~/shared/db.schema'
 
 const clientGroupSchema = v.object({
 	userID: v.string(),
@@ -8,7 +8,10 @@ const clientGroupSchema = v.object({
 	id: v.string(),
 })
 
-export async function getReplicacheClientGroupById(tx: Tx, { clientGroupID, userID }: { clientGroupID: string; userID: string }) {
+export async function getReplicacheClientGroupById(
+	tx: TxTransaction,
+	{ clientGroupID, userID }: { clientGroupID: string; userID: string }
+) {
 	try {
 		const clientGroup = await tx.query.replicacheClientGroups.findFirst({
 			where: (replicacheClientGroups, { eq }) => eq(replicacheClientGroups.id, clientGroupID),
@@ -47,7 +50,7 @@ export async function getReplicacheClientGroupById(tx: Tx, { clientGroupID, user
 	}
 }
 
-export async function upsertReplicacheClientGroup(tx: Tx, clientGroup: v.InferOutput<typeof clientGroupSchema>) {
+export async function upsertReplicacheClientGroup(tx: TxTransaction, clientGroup: v.InferOutput<typeof clientGroupSchema>) {
 	try {
 		await tx
 			.insert(replicacheClientGroups)

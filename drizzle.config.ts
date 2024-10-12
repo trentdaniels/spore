@@ -7,7 +7,7 @@ const { DATABASE_DIRECT_URL } = v.parse(
 )
 
 export default defineConfig({
-	schema: ['./server/database/**/*.schema.ts'],
+	schema: ['./shared/**/*.schema.ts'],
 	out: './server/database/migrations',
 	dialect: 'postgresql',
 	dbCredentials: {

@@ -120,7 +120,7 @@ async function processMutation(
 	})
 }
 
-async function mutate(tx: Tx, userID: string, mutation: Mutation): Promise<AffectedIDsByEntity> {
+async function mutate(tx: TxTransaction, userID: string, mutation: Mutation): Promise<AffectedIDsByEntity> {
 	switch (mutation.name) {
 		case 'createHabit':
 			return insertHabit(tx, userID, v.parse(habitSchema, mutation.args))
