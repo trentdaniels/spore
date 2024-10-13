@@ -1,6 +1,8 @@
 @layer reset, theme, typography, layout, components, utilities;
 
 @import url('./reset.css');
+
+/* @import url('@unocss/reset/tailwind-compat.css') layer(reset); */
 @import url('./theme.css');
 @import url('./typography.css');
 @import url('./layout.css');

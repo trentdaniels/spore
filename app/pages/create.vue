@@ -57,7 +57,7 @@
 						<textarea id="description" name="description" class="resize-y"></textarea>
 					</div>
 				</fieldset>
-				<fieldset class="min-inline-[min(25ch,100%)] flex flex-grow-1 flex-basis-none flex-col gap-2 p-block-2 p-inline-0">
+				<fieldset class="min-inline-[min(25ch,100%)] flex flex-grow-1 flex-basis-none flex-col gap-4 p-block-2 p-inline-0">
 					<legend class="p-0 text-4">Schedule</legend>
 
 					<div class="flex flex-col gap-1">
@@ -82,6 +82,47 @@
 								{{ weeklyFrequency.charAt(0).toLocaleUpperCase() + weeklyFrequency.slice(1) }}
 							</option>
 						</select>
+					</div>
+
+					<div class="flex flex-col gap-1">
+						<CalendarRoot #default="{ weekDays, grid }" fixed-weeks>
+							<CalendarHeader class="flex items-center justify-between">
+								<CalendarPrev class="inline-flex items-center block-8 aspect-ratio-square border-transparent text-dark bg-transparent">
+									<Icon name="radix-icons:chevron-left" class="block-6 inline-6" />
+								</CalendarPrev>
+								<CalendarHeading class="fw-medium" />
+								<CalendarNext class="inline-flex items-center block-8 aspect-ratio-square border-transparent text-dark bg-transparent">
+									<Icon name="radix-icons:chevron-right" class="block-6 inline-6" />
+								</CalendarNext>
+							</CalendarHeader>
+							<div class="flex flex-col">
+								<CalendarGrid class="inline-full border-collapse select-none" v-for="month of grid" :key="month.value.toString()">
+									<CalendarGridHead>
+										<CalendarGridRow class="grid grid-cols-7 inline-full">
+											<CalendarHeadCell v-for="day of weekDays" :key="day">
+												{{ day }}
+											</CalendarHeadCell>
+										</CalendarGridRow>
+									</CalendarGridHead>
+									<CalendarGridBody class="grid">
+										<CalendarGridRow v-for="(weekDates, index) of month.rows" :key="`weekDate-${index}`" class="grid grid-cols-7">
+											<CalendarCell
+												class="relative text-center text-sm"
+												v-for="weekDate of weekDates"
+												:key="weekDate.toString()"
+												:date="weekDate"
+											>
+												<CalendarCellTrigger
+													:day="weekDate"
+													:month="month.value"
+													class="relative flex m-inline-auto items-center justify-center rounded-full whitespace-nowrap text-sm font-normal text-black block-8 inline-8 outline-none focus:shadow-[0_0_0_2px] focus:shadow-black data-[disabled]:text-black/30 data-[selected]:!bg-green10 data-[selected]:text-white hover:bg-green5 data-[highlighted]:bg-green5 data-[unavailable]:pointer-events-none data-[unavailable]:text-black/30 data-[unavailable]:line-through before:absolute before:top-[5px] before:hidden before:rounded-full before:w-1 before:h-1 before:bg-white data-[today]:before:block data-[today]:before:bg-green9"
+												/>
+											</CalendarCell>
+										</CalendarGridRow>
+									</CalendarGridBody>
+								</CalendarGrid>
+							</div>
+						</CalendarRoot>
 					</div>
 				</fieldset>
 			</div>
