@@ -18,10 +18,11 @@ export const useSubscribe = <Tx, TQueryReturn>(
 	const defaultValue = options?.defaultValue
 	const querySnapshot = shallowRef(defaultValue)
 
-	watchEffect((onCleanup) => {
+	watchSyncEffect((onCleanup) => {
 		if (!isClient || !r) return
 		const unsubscribe = r.subscribe(query, {
 			onData: (data) => {
+				console.log(data)
 				querySnapshot.value = data
 			},
 		})

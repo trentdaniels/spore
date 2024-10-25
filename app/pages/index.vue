@@ -19,7 +19,7 @@
 			<template v-if="habits">
 				<li v-if="!habits.length">You don't have any habits! Try <NuxtLink to="/create">creating one here</NuxtLink>.</li>
 
-				<li v-for="habit of habits" v-else :key="habit.id" class="b-rd-md bg-emerald shadow-lg">
+				<li v-for="habit of habits" v-else :key="habit.id" class="b-rd-md bg-light">
 					<NuxtLink class="block px-[min(1rem,16px)] py-[min(1rem,16px)] text-lg fw-bold decoration-none" :to="`/habits/${habit.id}`">
 						{{ habit.name }}
 					</NuxtLink>

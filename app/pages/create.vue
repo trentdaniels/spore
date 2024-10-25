@@ -35,7 +35,7 @@
 				dailyFrequency: toRaw(days.value),
 				weeklyFrequency: result.output.weeklyFrequency,
 			})
-			await navigateTo(`/habits/${habitId}`)
+			navigateTo(`/habits/${habitId}`)
 		}
 	}
 </script>

@@ -2,6 +2,7 @@ import { and, eq } from 'drizzle-orm'
 import * as v from 'valibot'
 import { habits } from '~~/shared/db.schema'
 import { habitSchema, type Habit } from '~~/shared/habits'
+import { AffectedIDsByEntity } from './shared'
 
 export async function searchHabits(tx: TxTransaction, { userID }: { userID: string }) {
 	try {
@@ -35,7 +36,7 @@ export async function getHabits(tx: TxTransaction, { habitIDs }: { habitIDs: str
 	}
 }
 
-export async function insertHabit(tx: TxTransaction, userID: string, habit: Habit): Promise<AffectedIDsByEntity> {
+export async function insertHabit(tx: TxTransaction, userID: string, habit: Habit) {
 	try {
 		if (habit.userID !== userID)
 			throw createError({
@@ -47,7 +48,7 @@ export async function insertHabit(tx: TxTransaction, userID: string, habit: Habi
 		return {
 			habitIDs: [],
 			userIDs: [habit.userID],
-		}
+		} satisfies AffectedIDsByEntity
 	} catch (err) {
 		throw createError({
 			statusCode: HttpStatusCode.InternalError,
@@ -57,7 +58,7 @@ export async function insertHabit(tx: TxTransaction, userID: string, habit: Habi
 	}
 }
 
-export async function deleteHabit(tx: TxTransaction, userID: string, habitID: string): Promise<AffectedIDsByEntity> {
+export async function deleteHabit(tx: TxTransaction, userID: string, habitID: string) {
 	try {
 		const habit = await tx.query.habits.findFirst({
 			where: (habits, { eq, and }) => and(eq(habits.id, habitID), eq(habits.userID, userID)),
@@ -70,9 +71,9 @@ export async function deleteHabit(tx: TxTransaction, userID: string, habitID: st
 
 		await tx.delete(habits).where(and(eq(habits.id, habitID), eq(habits.userID, userID)))
 		return {
-			habitIDs: [],
+			habitIDs: [habit.id],
 			userIDs: [habit.userID],
-		}
+		} satisfies AffectedIDsByEntity
 	} catch (err) {
 		throw createError({
 			statusCode: HttpStatusCode.InternalError,

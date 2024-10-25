@@ -11,7 +11,7 @@
 		--app-background: var(--primary-color-light);
 
 		/* Font Families */
-		--heading-font-family: 'Playfair Display', serif;
+		--heading-font-family: system-ui, sans-serif;
 		--body-font-family: roboto, helvetica, arial, sans-serif;
 
 		/* Type Ratio Major Third */

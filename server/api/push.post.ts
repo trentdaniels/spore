@@ -1,6 +1,7 @@
 import { serverSupabaseClient } from '#supabase/server'
 import * as v from 'valibot'
 import { habitSchema } from '~~/shared/habits'
+import { AffectedIDsByEntity } from '../utils/entities/shared'
 
 const mutationSchema = v.object({
 	id: v.number(),
@@ -120,7 +121,7 @@ async function processMutation(
 	})
 }
 
-async function mutate(tx: TxTransaction, userID: string, mutation: Mutation): Promise<AffectedIDsByEntity> {
+async function mutate(tx: TxTransaction, userID: string, mutation: Mutation) {
 	switch (mutation.name) {
 		case 'createHabit':
 			return insertHabit(tx, userID, v.parse(habitSchema, mutation.args))
@@ -130,6 +131,6 @@ async function mutate(tx: TxTransaction, userID: string, mutation: Mutation): Pr
 			return {
 				habitIDs: [],
 				userIDs: [],
-			}
+			} satisfies AffectedIDsByEntity
 	}
 }

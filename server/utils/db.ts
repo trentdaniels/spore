@@ -11,6 +11,6 @@ export type TxTransaction = PgTransaction<PostgresJsQueryResultHKT, typeof schem
 
 export const useDB = () => {
 	const { DATABASE_URL } = v.parse(v.object({ DATABASE_URL: v.pipe(v.string('MISSING DATABASE_URL'), v.nonEmpty()) }), process.env)
-	const db = drizzle(postgres(DATABASE_URL, { prepare: false }), { logger: true, schema })
+	const db = drizzle(postgres(DATABASE_URL), { schema })
 	return db
 }

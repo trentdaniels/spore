@@ -7,8 +7,8 @@
 </script>
 
 <template>
-	<div class="min-block-100% flex flex-col gap-4 px-4">
-		<header class="flex gap-2 flex-items-baseline">
+	<div class="m-inline-4 min-block-100% flex flex-col gap-4">
+		<header class="flex gap-2 flex-items-baseline p-block-4">
 			<NuxtLink class="text-size-xl" to="/">Spore</NuxtLink>
 			<NuxtLink class="mis-auto" to="/create">Create Habit</NuxtLink>
 			<button @click="signOut">Sign Out</button>
