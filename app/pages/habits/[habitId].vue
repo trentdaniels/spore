@@ -5,17 +5,17 @@
 
 	const rep = useReplicache()
 	const habitId = useValidatedParams(v.string(), 'habitId')
-	const habit = useSubscribe(rep, (tx) => getHabit(tx, habitId))
+	const { data: habit, isLoaded } = useSubscribe(rep, (tx) => getHabit(tx, habitId))
 
 	// TODO: Figure out a way to make this dynamic. On initial navigation to this page, the title renders correctly.
 	// Other navigations cannot resolve the habit value name, so we're defaulting to "Habit Details"
 	useSeoMeta({
-		title: () => habit.value?.name ?? 'Habit Details',
+		title: () => 'Habit Details',
 	})
 </script>
 
 <template>
-	<div v-if="habit">
+	<div v-if="habit && isLoaded">
 		<header>
 			<h1 class="fw-extrabold decoration-underline">{{ habit.name }}</h1>
 			<p v-if="habit.description">{{ habit.description }}</p>

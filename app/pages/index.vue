@@ -5,7 +5,7 @@
 
 	const rep = useReplicache()
 
-	const habits = useSubscribe(rep, async (tx) => {
+	const { data: habits, isLoaded } = useSubscribe(rep, async (tx) => {
 		const habitList = await listHabits(tx)
 		return habitList.toSorted((a, b) => a.name.localeCompare(b.name))
 	})
@@ -16,7 +16,7 @@
 		<h1>Hello</h1>
 		<p>Habits:</p>
 		<ul class="flex flex-col gap-2">
-			<template v-if="habits">
+			<template v-if="isLoaded && habits">
 				<li v-if="!habits.length">You don't have any habits! Try <NuxtLink to="/create">creating one here</NuxtLink>.</li>
 
 				<li v-for="habit of habits" v-else :key="habit.id" class="b-rd-md bg-light">
