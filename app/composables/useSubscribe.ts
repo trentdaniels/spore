@@ -22,7 +22,6 @@ export const useSubscribe = <Tx, TQueryReturn>(
 		if (!isClient || !r) return
 		const unsubscribe = r.subscribe(query, {
 			onData: (data) => {
-				console.log(data)
 				querySnapshot.value = data
 			},
 		})
