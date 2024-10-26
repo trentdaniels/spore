@@ -1,15 +1,5 @@
 <template>
-	<main id="main-content" class="centered-layout">
+	<main id="main-content" class="m-inline-auto max-inline-600px min-block-100% p-block-6 p-inline-5">
 		<slot></slot>
 	</main>
 </template>
-
-<style scoped>
-	.centered-layout {
-		max-inline-size: 600px;
-		min-block-size: 100%;
-		padding-block: 24px;
-		padding-inline: 20px;
-		margin: auto;
-	}
-</style>
