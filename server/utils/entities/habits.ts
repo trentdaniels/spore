@@ -2,7 +2,6 @@ import { and, eq } from 'drizzle-orm'
 import * as v from 'valibot'
 import { habits } from '~~/shared/db.schema'
 import { habitSchema, type Habit } from '~~/shared/habits'
-import { AffectedIDsByEntity } from './shared'
 
 export async function searchHabits(tx: TxTransaction, { userID }: { userID: string }) {
 	try {
@@ -46,7 +45,8 @@ export async function insertHabit(tx: TxTransaction, userID: string, habit: Habi
 
 		await tx.insert(habits).values({ ...habit, rowVersion: 1 })
 		return {
-			habitIDs: [],
+			habitIDs: [habit.id],
+			habitEventIDs: [],
 			userIDs: [habit.userID],
 		} satisfies AffectedIDsByEntity
 	} catch (err) {
@@ -73,6 +73,7 @@ export async function deleteHabit(tx: TxTransaction, userID: string, habitID: st
 		return {
 			habitIDs: [habit.id],
 			userIDs: [habit.userID],
+			habitEventIDs: [],
 		} satisfies AffectedIDsByEntity
 	} catch (err) {
 		throw createError({

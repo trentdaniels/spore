@@ -3,6 +3,7 @@
 	import * as v from 'valibot'
 	import { habitSchema, type DailyFrequency } from '~~/shared/habits'
 	import { dailyFrequencies, weeklyFrequencies } from '~~/shared/db.schema'
+	import { CalendarDate, getLocalTimeZone, today, now } from '@internationalized/date'
 
 	useHead({ title: 'Create a Habit' })
 
@@ -27,14 +28,23 @@
 		const result = v.safeParse(schema, Object.fromEntries(formData.entries()))
 		if (result.success && user.value) {
 			const habitId = nanoid()
-			await rep.mutate.createHabit({
-				name: result.output.name,
-				id: habitId,
-				userID: user.value.id,
-				description: result.output.description,
-				dailyFrequency: toRaw(days.value),
-				weeklyFrequency: result.output.weeklyFrequency,
-			})
+			await Promise.all([
+				rep.mutate.createHabit({
+					name: result.output.name,
+					id: habitId,
+					userID: user.value.id,
+					description: result.output.description,
+					dailyFrequency: toRaw(days.value),
+					weeklyFrequency: result.output.weeklyFrequency,
+				}),
+				rep.mutate.createHabitEvent({
+					id: nanoid(),
+					userID: user.value.id,
+					habitID: habitId,
+					completed: false,
+					scheduledAt: now(getLocalTimeZone()).set({ hour: 0, millisecond: 0, minute: 0, second: 0 }).toAbsoluteString(),
+				}),
+			])
 			navigateTo(`/habits/${habitId}`)
 		}
 	}

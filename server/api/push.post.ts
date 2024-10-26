@@ -1,12 +1,15 @@
 import { serverSupabaseClient } from '#supabase/server'
 import * as v from 'valibot'
+import { habitEventSchema } from '~~/shared/habitEvents'
 import { habitSchema } from '~~/shared/habits'
-import { AffectedIDsByEntity } from '../utils/entities/shared'
+import { mutators } from '~~/shared/mutators'
+
+const objectKeys = <T extends object>(obj: T) => Object.keys(obj) as (keyof T)[]
 
 const mutationSchema = v.object({
 	id: v.number(),
 	clientID: v.string(),
-	name: v.string(),
+	name: v.picklist(objectKeys(mutators)),
 	args: v.unknown(),
 })
 
@@ -68,7 +71,7 @@ async function processMutation(
 ) {
 	// 2: beginTransaction
 	return await db.transaction(async (tx) => {
-		let affected: AffectedIDsByEntity = { habitIDs: [], userIDs: [] }
+		let affected: AffectedIDsByEntity = { habitIDs: [], userIDs: [], habitEventIDs: [] }
 
 		// 3: `getClientGroup(body.clientGroupID)`
 		// 4: Verify requesting user owns cg (in function)
@@ -127,10 +130,13 @@ async function mutate(tx: TxTransaction, userID: string, mutation: Mutation) {
 			return insertHabit(tx, userID, v.parse(habitSchema, mutation.args))
 		case 'deleteHabit':
 			return deleteHabit(tx, userID, v.parse(v.string(), mutation.args))
+		case 'createHabitEvent':
+			return insertHabitEvent(tx, userID, v.parse(habitEventSchema, mutation.args))
 		default:
 			return {
 				habitIDs: [],
 				userIDs: [],
+				habitEventIDs: [],
 			} satisfies AffectedIDsByEntity
 	}
 }

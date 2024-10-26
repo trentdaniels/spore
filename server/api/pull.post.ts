@@ -21,16 +21,18 @@ export default defineEventHandler(async (event): Promise<PullResponse> => {
 		// 4-5: getClientGroup(body.clientGroupID), verify user
 		const baseClientGroupRecord = await getReplicacheClientGroupById(tx, { userID, clientGroupID })
 
-		const [habitsMeta, clientMeta] = await Promise.all([
+		const [habitsMeta, habitEventsMeta, clientMeta] = await Promise.all([
 			// 6: Read all domain data, just ids and versions
 			// TODO: Add Domain entities to this call
 			searchHabits(tx, { userID }),
+			searchHabitEvents(tx, { userID }),
 			// 7: Read all clients in CG
 			searchReplicacheClients(tx, { clientGroupID }),
 		])
 
 		const nextCVR: CVR = {
 			habits: toCVREntries(habitsMeta),
+			habitEvents: toCVREntries(habitEventsMeta),
 			clients: toCVREntries(clientMeta),
 		}
 
@@ -43,7 +45,10 @@ export default defineEventHandler(async (event): Promise<PullResponse> => {
 		}
 
 		// 11: get entities by diff
-		const [habits] = await Promise.all([getHabits(tx, { habitIDs: diff.habits.puts })])
+		const [habits, habitEvents] = await Promise.all([
+			getHabits(tx, { habitIDs: diff.habits.puts }),
+			getHabitEvents(tx, { habitEventIDs: diff.habitEvents.puts }),
+		])
 
 		// 12: changed clients - no need to re-read clients from database,
 		// we already have their versions.
@@ -66,6 +71,7 @@ export default defineEventHandler(async (event): Promise<PullResponse> => {
 		return {
 			entities: {
 				habits: { dels: diff.habits.deletes, puts: habits },
+				habitEvents: { dels: diff.habitEvents.deletes, puts: habitEvents },
 				// list: {dels: diff.list.dels, puts: lists},
 				// share: {dels: diff.share.dels, puts: shares},
 				// todo: {dels: diff.todo.dels, puts: todos},

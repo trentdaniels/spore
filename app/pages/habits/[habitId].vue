@@ -2,10 +2,18 @@
 	import * as v from 'valibot'
 	import { getHabit } from '~~/shared/habits'
 	import { useValidatedParams } from '~/utils/route'
+	import { listHabitEvents } from '~~/shared/habitEvents'
 
 	const rep = useReplicache()
 	const habitId = useValidatedParams(v.string(), 'habitId')
-	const { data: habit, isLoaded } = useSubscribe(rep, (tx) => getHabit(tx, habitId))
+	const { data: habit, isLoaded } = useSubscribe(rep, async (tx) => {
+		const habit = await getHabit(tx, habitId)
+		const events = await listHabitEvents(tx)
+		return {
+			...habit,
+			events: events.filter((event) => event.habitID === habitId),
+		}
+	})
 
 	// TODO: Figure out a way to make this dynamic. On initial navigation to this page, the title renders correctly.
 	// Other navigations cannot resolve the habit value name, so we're defaulting to "Habit Details"
@@ -30,7 +38,8 @@
 				</div>
 				<div class="flex flex-col items-start">
 					<dt>Next Completion Date</dt>
-					<dd>-</dd>
+					<dd v-if="habit.events[0]">{{ habit.events[0].scheduledAt }}</dd>
+					<dd v-else>-</dd>
 				</div>
 
 				<div class="flex flex-col items-start">
