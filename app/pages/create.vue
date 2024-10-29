@@ -1,9 +1,11 @@
 <script lang="ts" setup>
 	import { nanoid } from 'nanoid'
 	import * as v from 'valibot'
-	import { habitSchema, type DailyFrequency } from '~~/shared/habits'
+	import { habitSchema } from '~~/shared/habits'
 	import { dailyFrequencies, weeklyFrequencies } from '~~/shared/db.schema'
-	import { CalendarDate, getLocalTimeZone, today, now } from '@internationalized/date'
+	import { getLocalTimeZone, today } from '@internationalized/date'
+	import type { DailyFrequency } from '~~/shared/habits'
+	import type { HabitEvent } from '~~/shared/habitEvents'
 
 	useHead({ title: 'Create a Habit' })
 
@@ -28,6 +30,25 @@
 		const result = v.safeParse(schema, Object.fromEntries(formData.entries()))
 		if (result.success && user.value) {
 			const habitId = nanoid()
+			const dailyFrequencyValues = toRaw(days.value)
+				.map((dF) => dailyFrequencies.enumValues.indexOf(dF))
+				.toSorted((a, b) => a - b)
+
+			const habitEvents = dailyFrequencyValues.map((dayOfWeek) => {
+				let nextScheduledDate = today(getLocalTimeZone())
+				while (nextScheduledDate.toDate(getLocalTimeZone()).getDay() !== dayOfWeek) nextScheduledDate = nextScheduledDate.add({ days: 1 })
+
+				return {
+					id: nanoid(),
+					userID: user.value!.id,
+					habitID: habitId,
+					dailyFrequency: dailyFrequencies.enumValues[dayOfWeek]!,
+					completed: false,
+					completedAt: null,
+					scheduledAt: nextScheduledDate.toString(),
+				} satisfies HabitEvent
+			})
+
 			await Promise.all([
 				rep.mutate.createHabit({
 					name: result.output.name,
@@ -37,13 +58,7 @@
 					dailyFrequency: toRaw(days.value),
 					weeklyFrequency: result.output.weeklyFrequency,
 				}),
-				rep.mutate.createHabitEvent({
-					id: nanoid(),
-					userID: user.value.id,
-					habitID: habitId,
-					completed: false,
-					scheduledAt: now(getLocalTimeZone()).set({ hour: 0, millisecond: 0, minute: 0, second: 0 }).toAbsoluteString(),
-				}),
+				rep.mutate.createHabitEvents(habitEvents),
 			])
 			navigateTo(`/habits/${habitId}`)
 		}

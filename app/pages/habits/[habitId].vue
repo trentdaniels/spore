@@ -8,6 +8,7 @@
 	const habitId = useValidatedParams(v.string(), 'habitId')
 	const { data: habit, isLoaded } = useSubscribe(rep, async (tx) => {
 		const habit = await getHabit(tx, habitId)
+		if (!habit) return
 		const events = await listHabitEvents(tx)
 		return {
 			...habit,
@@ -74,4 +75,5 @@
 			</dl>
 		</section>
 	</div>
+	<div v-else-if="isLoaded && !habit">Oops! We couldn't find this habit! <NuxtLink to="/">Back to Dashboard</NuxtLink></div>
 </template>

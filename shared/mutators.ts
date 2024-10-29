@@ -1,4 +1,4 @@
-import { createHabitEvent, deleteHabitEvent, updateHabitEvent } from '~~/shared/habitEvents'
+import { createHabitEvent, createHabitEvents, deleteHabitEvent, updateHabitEvent } from '~~/shared/habitEvents'
 import { createHabit, deleteHabit, updateHabit } from '~~/shared/habits'
 
 export type M = typeof mutators
@@ -8,6 +8,7 @@ export const mutators = {
 	updateHabit,
 	deleteHabit,
 	createHabitEvent,
+	createHabitEvents,
 	updateHabitEvent,
 	deleteHabitEvent,
 } as const

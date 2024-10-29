@@ -10,6 +10,7 @@ export default defineConfig({
 	schema: ['./shared/**/*.schema.ts'],
 	out: './server/database/migrations',
 	dialect: 'postgresql',
+	casing: 'snake_case',
 	dbCredentials: {
 		url: DATABASE_DIRECT_URL,
 	},

@@ -27,6 +27,7 @@ export default defineEventHandler(async (event) => {
 
 	const allAffected = {
 		habitIDs: new Set<string>(),
+		habitEventIDs: new Set<string>(),
 		userIDs: new Set<string>(),
 	}
 
@@ -36,6 +37,7 @@ export default defineEventHandler(async (event) => {
 			const affected = await processMutation(db, userID, push.clientGroupID, mutation)
 
 			for (const habitID of affected.habitIDs) allAffected.habitIDs.add(habitID)
+			for (const habitEventID of affected.habitEventIDs) allAffected.habitEventIDs.add(habitEventID)
 			for (const userID of affected.userIDs) allAffected.userIDs.add(userID)
 		} catch (err) {
 			await processMutation(db, userID, push.clientGroupID, mutation, true)
@@ -44,15 +46,37 @@ export default defineEventHandler(async (event) => {
 
 	const client = await serverSupabaseClient(event)
 
-	for (const habitID of allAffected.habitIDs) await client.channel(`habits/${habitID}`).send({ type: 'broadcast', event: 'poke' })
+	// NOTE: If there is ever a usecase to send out individual events for specific updates,
+	// THis code would come into play. For now, we only need to let this user know that changes occurred
+	// for (const habitID of allAffected.habitIDs) {
+	// 	const habitChannel = client.channel(`habits/${habitID}`).subscribe(async (status) => {
+	// 		if (status !== 'SUBSCRIBED') return
+	// 		await habitChannel.send({ type: 'broadcast', event: 'poke' })
+	// 		habitChannel.unsubscribe()
+	// 	})
+	// }
 
-	for (const userID of allAffected.userIDs) {
-		const userChannel = client.channel(`users/${userID}`).subscribe(async (status) => {
-			if (status !== 'SUBSCRIBED') return
-			await userChannel.send({ type: 'broadcast', event: 'poke' })
-			userChannel.unsubscribe()
-		})
-	}
+	// for (const habitEventID of allAffected.habitEventIDs) {
+	// 	const habitEventChannel = client.channel(`habitEvents/${habitEventID}`).subscribe(async (status) => {
+	// 		if (status !== 'SUBSCRIBED') return
+	// 		await habitEventChannel.send({ type: 'broadcast', event: 'poke' })
+	// 		habitEventChannel.unsubscribe()
+	// 	})
+	// }
+
+	// for (const userID of allAffected.userIDs) {
+	// 	const userChannel = client.channel(`users/${userID}`).subscribe(async (status) => {
+	// 		if (status !== 'SUBSCRIBED') return
+	// 		await userChannel.send({ type: 'broadcast', event: 'poke' })
+	// 		userChannel.unsubscribe()
+	// 	})
+	// }
+
+	const userChannel = client.channel(`users/${userID}`).subscribe(async (status) => {
+		if (status !== 'SUBSCRIBED') return
+		await userChannel.send({ type: 'broadcast', event: 'poke' })
+		userChannel.unsubscribe()
+	})
 
 	// Ensures that we send a 200 back. This helps replicache make sure that the update was successful
 	return {}
@@ -132,6 +156,10 @@ async function mutate(tx: TxTransaction, userID: string, mutation: Mutation) {
 			return deleteHabit(tx, userID, v.parse(v.string(), mutation.args))
 		case 'createHabitEvent':
 			return insertHabitEvent(tx, userID, v.parse(habitEventSchema, mutation.args))
+		case 'createHabitEvents':
+			return insertHabitEvents(tx, userID, v.parse(v.array(habitEventSchema), mutation.args))
+		case 'updateHabitEvent':
+			return updateHabitEvent(tx, userID, v.parse(habitEventSchema, mutation.args))
 		default:
 			return {
 				habitIDs: [],

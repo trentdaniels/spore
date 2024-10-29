@@ -20,11 +20,7 @@ export default defineNuxtPlugin(() => {
 		data,
 		open: openPokeStream,
 		close: closePokeStream,
-	} = useEventSource(
-		computed(() => `/api/poke?channel=users/${user.value?.id}`),
-		['poke'] as const,
-		{ autoReconnect: true, immediate: false }
-	)
+	} = useEventSource(`/api/poke`, ['poke'] as const, { autoReconnect: true, immediate: false })
 	watch([event, data], ([event]) => {
 		if (event === 'poke') replicacheInstance.pull()
 	})

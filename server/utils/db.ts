@@ -10,10 +10,11 @@ export type TxTransaction = PgTransaction<NodePgQueryResultHKT, typeof schema, E
 
 export const useDB = () => {
 	const { DATABASE_URL } = v.parse(v.object({ DATABASE_URL: v.pipe(v.string('MISSING DATABASE_URL'), v.nonEmpty()) }), process.env)
-	// const client = postgres(DATABASE_URL, { prepare: false })
 	const db = drizzle({
 		connection: DATABASE_URL,
 		schema,
+		casing: 'snake_case',
+		logger: true,
 	})
 	return db
 }

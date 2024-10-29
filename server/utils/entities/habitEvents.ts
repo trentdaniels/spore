@@ -1,3 +1,4 @@
+import { and, eq, sql } from 'drizzle-orm'
 import * as v from 'valibot'
 import { habitEvents } from '~~/shared/db.schema'
 import { type HabitEvent, habitEventSchema } from '~~/shared/habitEvents'
@@ -48,6 +49,58 @@ export async function insertHabitEvent(tx: TxTransaction, userID: string, habitE
 			habitIDs: [habitEvent.habitID],
 			habitEventIDs: [habitEvent.id],
 			userIDs: [habitEvent.userID],
+		} satisfies AffectedIDsByEntity
+	} catch (err) {
+		throw createError({
+			statusCode: HttpStatusCode.InternalError,
+			message: `[${insertHabitEvent.name}] habitEvent insertion failed`,
+			cause: err,
+		})
+	}
+}
+
+export async function updateHabitEvent(tx: TxTransaction, userID: string, habitEvent: HabitEvent) {
+	try {
+		if (habitEvent.userID !== userID)
+			throw createError({
+				statusCode: HttpStatusCode.Unauthorized,
+				message: 'User does not own habit event',
+			})
+
+		const { id, completed, ...valuesToUpdate } = habitEvent
+		await tx
+			.update(habitEvents)
+			.set({ ...valuesToUpdate, rowVersion: sql`${habitEvents.rowVersion} + 1` })
+			.where(and(eq(habitEvents.id, id), eq(habitEvents.userID, userID)))
+		return {
+			habitIDs: [],
+			habitEventIDs: [habitEvent.id],
+			userIDs: [habitEvent.userID],
+		} satisfies AffectedIDsByEntity
+	} catch (err) {
+		throw createError({
+			statusCode: HttpStatusCode.InternalError,
+			message: `[${updateHabitEvent.name}] habitEvent insertion failed`,
+			cause: err,
+		})
+	}
+}
+
+export async function insertHabitEvents(tx: TxTransaction, userID: string, events: HabitEvent[]) {
+	try {
+		if (events.some((habitEvent) => habitEvent.userID !== userID))
+			throw createError({
+				statusCode: HttpStatusCode.Unauthorized,
+				message: 'User does not own habit event',
+			})
+
+		const habitEventsWithRowVersions = events.map((habitEvent) => ({ ...habitEvent, rowVersion: 1 }))
+
+		await tx.insert(habitEvents).values(habitEventsWithRowVersions)
+		return {
+			habitIDs: [],
+			habitEventIDs: habitEventsWithRowVersions.map((habitEvent) => habitEvent.id),
+			userIDs: Array.from(new Set(habitEventsWithRowVersions.map((habitEvent) => habitEvent.userID))),
 		} satisfies AffectedIDsByEntity
 	} catch (err) {
 		throw createError({
