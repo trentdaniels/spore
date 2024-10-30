@@ -40,18 +40,49 @@ Deno.serve(async (req) => {
 			return []
 		}
 
-		const nextEvents = todayEvents.map((todayEvent) => {
-			const scheduledDate = Temporal.PlainDate.from(todayEvent.scheduledAt)
-
-			const nextScheduledAt = getNextScheduledAt(scheduledDate, todayEvent.frequency)
-			return {
-				...todayEvent,
-				id: nanoid(),
-				rowVersion: 1,
-				scheduledAt: nextScheduledAt.toString(),
-				completedAt: null,
-			} satisfies typeof schema.habitEvents.$inferInsert
+		const existingNextEvents = await tx.query.habitEvents.findMany({
+			columns: {
+				userID: true,
+				frequency: true,
+				habitID: true,
+				scheduledAt: true,
+			},
+			where: (habitEvents, { or, eq }) =>
+				or(
+					eq(habitEvents.scheduledAt, calendarDate.add({ weeks: 1 }).toString()),
+					eq(habitEvents.scheduledAt, calendarDate.add({ weeks: 2 }).toString())
+				),
 		})
+
+		const nextEvents = todayEvents
+			.filter((event) => {
+				switch (event.frequency) {
+					case 'biweekly':
+					case 'weekly':
+						return !existingNextEvents.some(
+							(existingEvent) => existingEvent.frequency === event.frequency && event.habitID === existingEvent.habitID
+						)
+					default:
+						return true
+				}
+			})
+			.map((todayEvent) => {
+				const scheduledDate = Temporal.PlainDate.from(todayEvent.scheduledAt)
+
+				const nextScheduledAt = getNextScheduledAt(scheduledDate, todayEvent.frequency)
+				return {
+					...todayEvent,
+					id: nanoid(),
+					rowVersion: 1,
+					scheduledAt: nextScheduledAt.toString(),
+					completedAt: null,
+				} satisfies typeof schema.habitEvents.$inferInsert
+			})
+
+		if (!nextEvents.length) {
+			console.log(`Events already exist for (${time}). Skipping New Event Insertion`)
+			return []
+		}
 
 		return await tx.insert(schema.habitEvents).values(nextEvents).returning({ id: schema.habitEvents.id })
 	})
