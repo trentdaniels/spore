@@ -10,5 +10,8 @@
 	},
 	"vite.autoStart": false,
 	"typescript.tsdk": "node_modules/typescript/lib",
-	"stylelint.validate": ["css", "less", "vue"]
+	"stylelint.validate": ["css", "less", "vue"],
+	"deno.enablePaths": ["./supabase/functions"],
+	"deno.importMap": "./supabase/functions/import_map.json",
+	"deno.enable": true
 }

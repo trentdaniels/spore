@@ -1,4 +1,4 @@
-import { SQL, sql } from 'drizzle-orm'
+import { sql, type SQL } from 'drizzle-orm'
 import { boolean, date, integer, pgEnum, pgTable, timestamp, varchar } from 'drizzle-orm/pg-core'
 
 const auditColumns = {
@@ -13,33 +13,7 @@ const rowVersionColumns = {
 	rowVersion: integer().notNull(),
 }
 
-export const replicacheClientGroups = pgTable('replicache_client_groups', {
-	id: varchar({ length: 36 }).primaryKey(),
-	userID: varchar({ length: 36 }).notNull(),
-	cvrVersion: integer().notNull(),
-	...auditColumns,
-})
-
-export const replicacheClients = pgTable('replicache_clients', {
-	id: varchar('id', { length: 36 }).primaryKey(),
-	clientGroupID: varchar({ length: 36 }).notNull(),
-	rowVersion: integer('last_mutation_id').notNull(),
-	...auditColumns,
-})
-
 export const weeklyFrequencies = pgEnum('weekly_frequencies', ['weekly', 'biweekly'])
-export const dailyFrequencies = pgEnum('daily_frequencies', ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'])
-
-export const habits = pgTable('habits', {
-	id: varchar({ length: 36 }).primaryKey(),
-	userID: varchar({ length: 36 }).notNull(),
-	name: varchar({ length: 100 }).notNull(),
-	description: varchar(),
-	weeklyFrequency: weeklyFrequencies().default('weekly'),
-	dailyFrequency: dailyFrequencies().array(),
-	...rowVersionColumns,
-	...auditColumns,
-})
 
 export const habitEvents = pgTable('habit_events', {
 	id: varchar({ length: 36 }).primaryKey(),

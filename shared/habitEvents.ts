@@ -1,14 +1,14 @@
 import { generate } from '@rocicorp/rails'
 import type { WriteTransaction } from 'replicache'
 import * as v from 'valibot'
-import { dailyFrequencies } from './db.schema'
+import { weeklyFrequencies } from './db.schema'
 
 export const habitEventSchema = v.object({
 	id: v.string(),
 	userID: v.string(),
 	habitID: v.string(),
 	scheduledAt: v.pipe(v.string(), v.isoDate()),
-	dailyFrequency: v.picklist(dailyFrequencies.enumValues),
+	frequency: v.picklist(weeklyFrequencies.enumValues),
 	completed: v.optional(v.boolean(), false),
 	completedAt: v.nullable(v.string(), null),
 })

@@ -1,0 +1,9 @@
+{
+	"imports": {
+		"drizzle-orm": "npm:drizzle-orm@^0.35.3",
+		"drizzle-orm/": "npm:/drizzle-orm@^0.35.3/",
+		"valibot": "npm:valibot@^0.42.1",
+		"nanoid": "npm:nanoid@^5.0.7",
+		"postgres": "npm:postgres"
+	}
+}

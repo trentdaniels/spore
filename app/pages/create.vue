@@ -42,7 +42,7 @@
 					id: nanoid(),
 					userID: user.value!.id,
 					habitID: habitId,
-					dailyFrequency: dailyFrequencies.enumValues[dayOfWeek]!,
+					frequency: result.output.weeklyFrequency,
 					completed: false,
 					completedAt: null,
 					scheduledAt: nextScheduledDate.toString(),
