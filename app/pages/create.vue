@@ -1,10 +1,9 @@
 <script lang="ts" setup>
 	import { nanoid } from 'nanoid'
 	import * as v from 'valibot'
-	import { habitSchema } from '~~/shared/habits'
+	import { type DailyFrequency, habitSchema } from '~~/shared/habits'
 	import { dailyFrequencies, weeklyFrequencies } from '~~/shared/db.schema'
-	import { getLocalTimeZone, today } from '@internationalized/date'
-	import type { DailyFrequency } from '~~/shared/habits'
+	import { getLocalTimeZone, parseDate, today } from '@internationalized/date'
 	import type { HabitEvent } from '~~/shared/habitEvents'
 
 	useHead({ title: 'Create a Habit' })
@@ -48,6 +47,16 @@
 					scheduledAt: nextScheduledDate.toString(),
 				} satisfies HabitEvent
 			})
+
+			const todayEvent = habitEvents.find((habitEvent) => habitEvent.scheduledAt === today(getLocalTimeZone()).toString())
+			if (todayEvent)
+				habitEvents.push({
+					...todayEvent,
+					id: nanoid(),
+					scheduledAt: parseDate(todayEvent.scheduledAt)
+						.add({ weeks: todayEvent.frequency === 'biweekly' ? 2 : 1 })
+						.toString(),
+				})
 
 			await Promise.all([
 				rep.mutate.createHabit({
@@ -110,18 +119,18 @@
 					</div>
 
 					<div class="flex flex-col gap-1">
-						<CalendarRoot #default="{ weekDays, grid }" fixed-weeks>
+						<CalendarRoot v-slot="{ weekDays, grid }" fixed-weeks>
 							<CalendarHeader class="flex items-center justify-between">
-								<CalendarPrev class="inline-flex items-center block-8 aspect-ratio-square border-transparent text-dark bg-transparent">
+								<CalendarPrev class="aspect-ratio-square block-8 inline-flex items-center border-transparent bg-transparent text-dark">
 									<Icon name="radix-icons:chevron-left" class="block-6 inline-6" />
 								</CalendarPrev>
 								<CalendarHeading class="fw-medium" />
-								<CalendarNext class="inline-flex items-center block-8 aspect-ratio-square border-transparent text-dark bg-transparent">
+								<CalendarNext class="aspect-ratio-square block-8 inline-flex items-center border-transparent bg-transparent text-dark">
 									<Icon name="radix-icons:chevron-right" class="block-6 inline-6" />
 								</CalendarNext>
 							</CalendarHeader>
 							<div class="flex flex-col">
-								<CalendarGrid class="inline-full border-collapse select-none" v-for="month of grid" :key="month.value.toString()">
+								<CalendarGrid v-for="month of grid" :key="month.value.toString()" class="inline-full select-none border-collapse">
 									<CalendarGridHead>
 										<CalendarGridRow class="grid grid-cols-7 inline-full">
 											<CalendarHeadCell v-for="day of weekDays" :key="day">
@@ -132,15 +141,15 @@
 									<CalendarGridBody class="grid">
 										<CalendarGridRow v-for="(weekDates, index) of month.rows" :key="`weekDate-${index}`" class="grid grid-cols-7">
 											<CalendarCell
-												class="relative text-center text-sm"
 												v-for="weekDate of weekDates"
 												:key="weekDate.toString()"
+												class="relative text-center text-sm"
 												:date="weekDate"
 											>
 												<CalendarCellTrigger
 													:day="weekDate"
 													:month="month.value"
-													class="relative flex m-inline-auto items-center justify-center rounded-full whitespace-nowrap text-sm font-normal text-black block-8 inline-8 outline-none focus:shadow-[0_0_0_2px] focus:shadow-black data-[disabled]:text-black/30 data-[selected]:!bg-green10 data-[selected]:text-white hover:bg-green5 data-[highlighted]:bg-green5 data-[unavailable]:pointer-events-none data-[unavailable]:text-black/30 data-[unavailable]:line-through before:absolute before:top-[5px] before:hidden before:rounded-full before:w-1 before:h-1 before:bg-white data-[today]:before:block data-[today]:before:bg-green9"
+													class="data-[selected]:!bg-green10 relative m-inline-auto block-8 inline-8 flex items-center justify-center whitespace-nowrap rounded-full text-sm text-black font-normal outline-none data-[unavailable]:pointer-events-none before:absolute before:top-[5px] before:hidden before:h-1 before:w-1 before:rounded-full before:bg-white data-[highlighted]:bg-green5 hover:bg-green5 data-[disabled]:text-black/30 data-[selected]:text-white data-[unavailable]:text-black/30 data-[unavailable]:line-through focus:shadow-[0_0_0_2px] focus:shadow-black data-[today]:before:block data-[today]:before:bg-green9"
 												/>
 											</CalendarCell>
 										</CalendarGridRow>

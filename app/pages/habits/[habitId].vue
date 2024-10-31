@@ -3,6 +3,7 @@
 	import { getHabit } from '~~/shared/habits'
 	import { useValidatedParams } from '~/utils/route'
 	import { listHabitEvents } from '~~/shared/habitEvents'
+	import { getLocalTimeZone, parseDate, today } from '@internationalized/date'
 
 	const rep = useReplicache()
 	const habitId = useValidatedParams(v.string(), 'habitId')
@@ -10,9 +11,17 @@
 		const habit = await getHabit(tx, habitId)
 		if (!habit) return
 		const events = await listHabitEvents(tx)
+		const sortedEvents = events
+			.filter((event) => event.habitID === habitId)
+			.toSorted((a, b) => parseDate(a.scheduledAt).compare(parseDate(b.scheduledAt)))
+
 		return {
 			...habit,
-			events: events.filter((event) => event.habitID === habitId),
+			events: sortedEvents,
+			nextCompletionDate: sortedEvents.find(
+				(event) => parseDate(event.scheduledAt).compare(today(getLocalTimeZone())) >= 0 && !event.completed
+			)?.scheduledAt,
+			lastCompletedDate: sortedEvents.findLast((event) => event.completed)?.scheduledAt,
 		}
 	})
 
@@ -39,7 +48,7 @@
 				</div>
 				<div class="flex flex-col items-start">
 					<dt>Next Completion Date</dt>
-					<dd v-if="habit.events[0]">{{ habit.events[0].scheduledAt }}</dd>
+					<dd v-if="habit.nextCompletionDate">{{ habit.nextCompletionDate }}</dd>
 					<dd v-else>-</dd>
 				</div>
 
@@ -60,7 +69,8 @@
 			<dl class="flex flex-wrap gap-6">
 				<div class="flex flex-col items-start">
 					<dt>Last Completed</dt>
-					<dd>-</dd>
+					<dd v-if="habit.lastCompletedDate">{{ habit.lastCompletedDate }}</dd>
+					<dd v-else>-</dd>
 				</div>
 
 				<div class="flex flex-col items-start">
