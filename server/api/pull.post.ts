@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid'
-import { type PatchOperation, type PullResponse } from 'replicache'
+import type { PatchOperation, PullResponse } from 'replicache'
 import * as v from 'valibot'
 
 const cookieSchema = v.object({ order: v.number(), cvrID: v.string() })

@@ -1,5 +1,5 @@
 import { serverSupabaseUser } from '#supabase/server'
-import { type H3Event } from 'h3'
+import type { H3Event } from 'h3'
 
 export type User = NonNullable<Awaited<ReturnType<typeof serverSupabaseUser>>>
 

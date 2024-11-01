@@ -39,7 +39,7 @@ export default defineEventHandler(async (event) => {
 			for (const habitID of affected.habitIDs) allAffected.habitIDs.add(habitID)
 			for (const habitEventID of affected.habitEventIDs) allAffected.habitEventIDs.add(habitEventID)
 			for (const userID of affected.userIDs) allAffected.userIDs.add(userID)
-		} catch (err) {
+		} catch {
 			await processMutation(db, userID, push.clientGroupID, mutation, true)
 		}
 	}

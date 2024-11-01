@@ -1,4 +1,4 @@
-import { SQL, sql } from 'drizzle-orm'
+import { type SQL, sql } from 'drizzle-orm'
 import { boolean, date, integer, pgEnum, pgTable, timestamp, varchar } from 'drizzle-orm/pg-core'
 
 const auditColumns = {

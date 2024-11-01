@@ -1,4 +1,4 @@
-import { type H3Event } from 'h3'
+import type { H3Event } from 'h3'
 import type { BaseIssue } from 'valibot'
 import * as v from 'valibot'
 import { createBadRequestError } from './http'

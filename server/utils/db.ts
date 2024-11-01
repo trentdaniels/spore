@@ -1,5 +1,5 @@
-import { type ExtractTablesWithRelations } from 'drizzle-orm'
-import { PgTransaction } from 'drizzle-orm/pg-core'
+import type { ExtractTablesWithRelations } from 'drizzle-orm'
+import type { PgTransaction } from 'drizzle-orm/pg-core'
 import { drizzle, type PostgresJsQueryResultHKT } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
 import * as v from 'valibot'
