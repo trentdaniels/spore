@@ -1,10 +1,8 @@
-import { fileURLToPath } from 'url'
-
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
 	ssr: false,
 	sourcemap: true,
-	compatibilityDate: '2024-10-24',
+	compatibilityDate: '2024-11-04',
 	future: { compatibilityVersion: 4 },
 	devtools: { enabled: true },
 	experimental: {
@@ -22,9 +20,6 @@ export default defineNuxtConfig({
 		},
 	},
 	css: ['@/assets/styles/main.css'],
-	alias: {
-		'@server': fileURLToPath(new URL('./server', import.meta.url)),
-	},
 	imports: {
 		dirs: ['shared/**'],
 	},

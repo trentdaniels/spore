@@ -1,6 +1,6 @@
+import { mutators, type M } from '#shared/mutators'
 import { Replicache } from 'replicache'
 import * as v from 'valibot'
-import { mutators, type M } from '~~/shared/mutators'
 
 type Tx = Pick<Replicache<M>, 'subscribe' | 'mutate'>
 

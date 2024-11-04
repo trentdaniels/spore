@@ -21,7 +21,7 @@
 		"dotenv": "^16.4.5",
 		"drizzle-orm": "^0.36.0",
 		"nanoid": "^5.0.8",
-		"nuxt": "^3.13.2",
+		"nuxt": "^3.14.0",
 		"postgres": "^3.4.5",
 		"radix-vue": "^1.9.8",
 		"replicache": "^15.0.1",

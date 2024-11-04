@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 	import { nanoid } from 'nanoid'
 	import * as v from 'valibot'
-	import { type DailyFrequency, habitSchema } from '~~/shared/habits'
-	import { dailyFrequencies, weeklyFrequencies } from '~~/shared/db.schema'
+	import { type DailyFrequency, habitSchema } from '#shared/habits'
+	import { dailyFrequencies, weeklyFrequencies } from '#shared/db.schema'
 	import { getLocalTimeZone, parseDate, today } from '@internationalized/date'
-	import type { HabitEvent } from '~~/shared/habitEvents'
+	import type { HabitEvent } from '#shared/habitEvents'
 
 	useHead({ title: 'Create a Habit' })
 

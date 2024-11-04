@@ -1,5 +1,5 @@
+import { habitSchema } from '#shared/habits'
 import * as v from 'valibot'
-import { habitSchema } from '~~/shared/habits'
 
 export default defineEventHandler(async (event) => {
 	const user = await ensureUser(event)

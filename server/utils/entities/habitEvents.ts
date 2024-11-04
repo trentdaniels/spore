@@ -1,7 +1,7 @@
+import { habitEvents } from '#shared/db.schema'
+import { type HabitEvent, habitEventSchema } from '#shared/habitEvents'
 import { and, eq, sql } from 'drizzle-orm'
 import * as v from 'valibot'
-import { habitEvents } from '~~/shared/db.schema'
-import { type HabitEvent, habitEventSchema } from '~~/shared/habitEvents'
 
 export async function searchHabitEvents(tx: TxTransaction, { userID }: { userID: string }) {
 	try {

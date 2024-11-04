@@ -1,6 +1,6 @@
+import { replicacheClientGroups } from '#shared/db.schema'
 import { sql } from 'drizzle-orm'
 import * as v from 'valibot'
-import { replicacheClientGroups } from '~~/shared/db.schema'
 
 const clientGroupSchema = v.object({
 	userID: v.string(),

@@ -1,7 +1,7 @@
+import { habits } from '#shared/db.schema'
+import { habitSchema, type Habit } from '#shared/habits'
 import { and, eq } from 'drizzle-orm'
 import * as v from 'valibot'
-import { habits } from '~~/shared/db.schema'
-import { habitSchema, type Habit } from '~~/shared/habits'
 
 export async function searchHabits(tx: TxTransaction, { userID }: { userID: string }) {
 	try {

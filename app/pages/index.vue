@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 	import { getLocalTimeZone, isToday, now, parseDate } from '@internationalized/date'
-	import { listHabitEvents, type HabitEvent } from '~~/shared/habitEvents'
-	import { listHabits } from '~~/shared/habits'
+	import { listHabitEvents, type HabitEvent } from '#shared/habitEvents'
+	import { listHabits } from '#shared/habits'
 
 	useHead({ title: 'Dashboard' })
 

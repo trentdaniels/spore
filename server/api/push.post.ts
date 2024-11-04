@@ -1,8 +1,8 @@
+import { habitEventSchema } from '#shared/habitEvents'
+import { habitSchema } from '#shared/habits'
+import { mutators } from '#shared/mutators'
 import { serverSupabaseClient } from '#supabase/server'
 import * as v from 'valibot'
-import { habitEventSchema } from '~~/shared/habitEvents'
-import { habitSchema } from '~~/shared/habits'
-import { mutators } from '~~/shared/mutators'
 
 const objectKeys = <T extends object>(obj: T) => Object.keys(obj) as (keyof T)[]
 

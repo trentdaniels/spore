@@ -1,5 +1,5 @@
-import { createHabitEvent, createHabitEvents, deleteHabitEvent, updateHabitEvent } from '~~/shared/habitEvents'
-import { createHabit, deleteHabit, updateHabit } from '~~/shared/habits'
+import { createHabitEvent, createHabitEvents, deleteHabitEvent, updateHabitEvent } from '#shared/habitEvents'
+import { createHabit, deleteHabit, updateHabit } from '#shared/habits'
 
 export type M = typeof mutators
 
