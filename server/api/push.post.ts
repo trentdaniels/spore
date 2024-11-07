@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
 		userIDs: new Set<string>(),
 	}
 
-	const db = useDB()
+	const db = await useDB(event)
 	for (const mutation of push.mutations) {
 		try {
 			const affected = await processMutation(db, userID, push.clientGroupID, mutation)
@@ -94,7 +94,7 @@ async function processMutation(
 	errorMode = false
 ) {
 	// 2: beginTransaction
-	return await db.transaction(async (tx) => {
+	return await db.rls(async (tx) => {
 		let affected: AffectedIDsByEntity = { habitIDs: [], userIDs: [], habitEventIDs: [] }
 
 		// 3: `getClientGroup(body.clientGroupID)`

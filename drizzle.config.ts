@@ -1,4 +1,4 @@
-import { defineConfig } from 'drizzle-kit'
+import { defineConfig, type Config } from 'drizzle-kit'
 import * as v from 'valibot'
 
 const { DATABASE_DIRECT_URL } = v.parse(
@@ -16,4 +16,9 @@ export default defineConfig({
 	},
 	verbose: true,
 	strict: true,
-})
+	entities: {
+		roles: {
+			provider: 'supabase',
+		},
+	},
+} satisfies Config)

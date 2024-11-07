@@ -3,12 +3,13 @@
 	definePageMeta({ layout: 'centered' })
 
 	const client = useSupabaseClient()
+	const location = useBrowserLocation()
 
 	const onSubmit = () => {
 		client.auth.signInWithOAuth({
 			provider: 'google',
 			options: {
-				redirectTo: 'http://localhost:3000/confirm',
+				redirectTo: `${location.value.origin}/confirm`,
 			},
 		})
 	}
@@ -19,9 +20,3 @@
 		<button>Sign In with Google</button>
 	</form>
 </template>
-
-<style scoped>
-	h1 {
-		color: palevioletred;
-	}
-</style>

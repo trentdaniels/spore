@@ -1,5 +1,5 @@
 import { config } from 'dotenv'
-import { defineConfig } from 'drizzle-kit'
+import { defineConfig, type Config } from 'drizzle-kit'
 import * as v from 'valibot'
 
 const env = config({ path: '.env.local' })
@@ -19,4 +19,9 @@ export default defineConfig({
 	},
 	verbose: true,
 	strict: true,
-})
+	entities: {
+		roles: {
+			provider: 'supabase',
+		},
+	},
+} satisfies Config)

@@ -14,6 +14,12 @@
 		const sortedEvents = events
 			.filter((event) => event.habitID === habitId)
 			.toSorted((a, b) => parseDate(a.scheduledAt).compare(parseDate(b.scheduledAt)))
+		const completedEvents = sortedEvents.filter((event) => event.completed)
+		const completionPercentage = Math.floor(
+			(completedEvents.length /
+				sortedEvents.filter((event) => parseDate(event.scheduledAt).compare(today(getLocalTimeZone())) <= 0).length) *
+				100
+		)
 
 		return {
 			...habit,
@@ -22,6 +28,7 @@
 				(event) => parseDate(event.scheduledAt).compare(today(getLocalTimeZone())) >= 0 && !event.completed
 			)?.scheduledAt,
 			lastCompletedDate: sortedEvents.findLast((event) => event.completed)?.scheduledAt,
+			completionPercentage: isNaN(completionPercentage) ? 0 : completionPercentage,
 		}
 	})
 
@@ -59,7 +66,7 @@
 
 				<div class="flex flex-col items-start">
 					<dt>Completion Percentage</dt>
-					<dd>-</dd>
+					<dd>{{ habit.completionPercentage }}%</dd>
 				</div>
 			</dl>
 		</section>
