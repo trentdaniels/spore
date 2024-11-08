@@ -14,6 +14,8 @@
 			return navigateTo(redirectPath || '/')
 		}
 	})
+
+	useHead({ title: 'Authenticatin Confirmation' })
 </script>
 
 <template>

@@ -54,16 +54,14 @@
 						{{ habitEvent.habit.name }}
 					</NuxtLink>
 
-					<!-- <button Mark as Complete</button> -->
 					<Toggle
 						v-slot="{ pressed }"
 						:pressed="habitEvent.event.completed"
-						class="aspect-square flex items-center gap-2 bg-dark p-block-2 p-inline-2 text-light"
+						class="aspect-square flex items-center gap-2 bg-dark text-light"
 						@update:pressed="toggleComplete($event, habitEvent.event)"
 					>
-						<Icon size="1.25em" :name="pressed ? 'radix-icons:check-circled' : 'radix-icons:circle'">
-							{{ pressed ? 'Complete' : 'Mark as Complete' }}
-						</Icon>
+						<Icon size="1.25em" class="p-block-2 p-inline-2" :name="pressed ? 'radix-icons:check-circled' : 'radix-icons:circle'" />
+						<span class="inclusively-hidden">Mark as Complete</span>
 					</Toggle>
 				</li>
 			</template>

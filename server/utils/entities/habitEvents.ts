@@ -27,7 +27,6 @@ export async function getHabitEvents(tx: TxTransaction, { habitEventIDs }: { hab
 		const parsedHabits = await v.parseAsync(v.array(habitEventSchema), habitEvents)
 		return parsedHabits
 	} catch (err) {
-		console.log(JSON.stringify(err, undefined, 2))
 		throw createError({
 			statusCode: HttpStatusCode.InternalError,
 			message: `[${getHabitEvents.name}] habitEvents retrieval failed`,
@@ -105,7 +104,7 @@ export async function insertHabitEvents(tx: TxTransaction, userID: string, event
 	} catch (err) {
 		throw createError({
 			statusCode: HttpStatusCode.InternalError,
-			message: `[${insertHabitEvent.name}] habitEvent insertion failed`,
+			message: `[${insertHabitEvents.name}] habitEvent insertion failed`,
 			cause: err,
 		})
 	}

@@ -1,5 +1,5 @@
 import { type SQL, sql } from 'drizzle-orm'
-import { boolean, date, type ExtraConfigColumn, integer, pgEnum, pgPolicy, pgTable, timestamp, varchar } from 'drizzle-orm/pg-core'
+import { boolean, date, type ExtraConfigColumn, index, integer, pgEnum, pgPolicy, pgTable, timestamp, varchar } from 'drizzle-orm/pg-core'
 import { authenticatedRole, authUid } from 'drizzle-orm/supabase'
 
 const auditColumns = {
@@ -19,22 +19,24 @@ const userIDColumns = {
 }
 
 const createAuthenticatedRolePolicy = (t: { userID: ExtraConfigColumn }) =>
-	pgPolicy('Enable users to view their own data only', {
+	pgPolicy('authenticated-user-controls-own-entities', {
 		as: 'permissive',
 		for: 'all',
 		to: authenticatedRole,
-		using: sql`${authUid} = ${t.userID}`,
-		withCheck: sql`${authUid} = ${t.userID}`,
+		using: sql`(((${authUid}::varchar)::text) = (${t.userID})::text)`,
+		withCheck: sql`(((${authUid}::varchar)::text) = (${t.userID})::text)`,
 	})
 
 const createDefaultAuthenticatedRolePolicy = () =>
-	pgPolicy('Enables authenticated users to access data', {
+	pgPolicy('authenticated-user-can-access', {
 		as: 'permissive',
 		for: 'all',
 		to: authenticatedRole,
-		using: sql`true`,
-		withCheck: sql`true`,
+		using: sql`(true)`,
+		withCheck: sql`(true)`,
 	})
+
+const createUserIDIndex = (prefix: string, t: { userID: ExtraConfigColumn }) => index(`${prefix}_userID`).on(t.userID)
 
 export const replicacheClientGroups = pgTable(
 	'replicache_client_groups',
@@ -44,7 +46,7 @@ export const replicacheClientGroups = pgTable(
 		...auditColumns,
 		...userIDColumns,
 	},
-	(t) => [createAuthenticatedRolePolicy(t)]
+	(t) => [createAuthenticatedRolePolicy(t), createUserIDIndex('replicache_client_groups', t)]
 )
 
 export const replicacheClients = pgTable(
@@ -73,7 +75,7 @@ export const habits = pgTable(
 		...auditColumns,
 		...userIDColumns,
 	},
-	(t) => [createAuthenticatedRolePolicy(t)]
+	(t) => [createAuthenticatedRolePolicy(t), createUserIDIndex('habits', t)]
 )
 
 export const habitEvents = pgTable(
@@ -91,5 +93,5 @@ export const habitEvents = pgTable(
 		...auditColumns,
 		...userIDColumns,
 	},
-	(t) => [createAuthenticatedRolePolicy(t)]
+	(t) => [createAuthenticatedRolePolicy(t), createUserIDIndex('habit_events', t)]
 )

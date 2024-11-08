@@ -63,8 +63,8 @@
 
 	.divider::after,
 	.divider::before {
-		content: '';
 		block-size: 2px;
+		content: '';
 		background-color: black;
 	}
 
@@ -74,12 +74,12 @@
 		display: grid;
 		grid-auto-flow: row;
 		gap: var(--card-spacing, 0.75em);
+		block-size: 100%;
 		padding-block: 20px;
 		padding-inline: 12px;
 		color: white;
 		background-color: var(--card-bg, var(--primary-color-base));
 		border-radius: 4px;
-		block-size: 100%;
 	}
 
 	.card > *:last-child {

@@ -75,7 +75,7 @@ const decode = (accessToken: string): JwtPayload & { role: string } => {
 }
 
 export const useDB = async (event: H3Event) => {
-	const { DATABASE_URL, ADMIN_DATABASE_URL } = v.parse(
+	const { DATABASE_URL, ADMIN_DATABASE_URL } = await v.parseAsync(
 		v.object({
 			DATABASE_URL: v.pipe(v.string('MISSING DATABASE_URL'), v.nonEmpty()),
 			ADMIN_DATABASE_URL: v.pipe(v.string('MISSING ADMIN_DATABASE_URL'), v.nonEmpty()),
