@@ -1,5 +1,4 @@
-import { habits } from '#shared/db.schema'
-import { habitSchema, type Habit } from '#shared/habits'
+import { habits } from '#shared/utils/db.schema'
 import { and, eq } from 'drizzle-orm'
 import * as v from 'valibot'
 
@@ -58,7 +57,7 @@ export async function insertHabit(tx: TxTransaction, userID: string, habit: Habi
 	}
 }
 
-export async function deleteHabit(tx: TxTransaction, userID: string, habitID: string) {
+export async function removeHabit(tx: TxTransaction, userID: string, habitID: string) {
 	try {
 		const habit = await tx.query.habits.findFirst({
 			where: (habits, { eq, and }) => and(eq(habits.id, habitID), eq(habits.userID, userID)),
@@ -78,7 +77,7 @@ export async function deleteHabit(tx: TxTransaction, userID: string, habitID: st
 	} catch (err) {
 		throw createError({
 			statusCode: HttpStatusCode.InternalError,
-			message: `[${deleteHabit.name}] habit insertion failed`,
+			message: `[${removeHabit.name}] habit insertion failed`,
 			cause: err,
 		})
 	}

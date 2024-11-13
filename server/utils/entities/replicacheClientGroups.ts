@@ -1,4 +1,4 @@
-import { replicacheClientGroups } from '#shared/db.schema'
+import { replicacheClientGroups } from '#shared/utils/db.schema'
 import { sql } from 'drizzle-orm'
 import * as v from 'valibot'
 

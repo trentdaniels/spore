@@ -1,6 +1,3 @@
-import { habitEventSchema } from '#shared/habitEvents'
-import { habitSchema } from '#shared/habits'
-import { mutators } from '#shared/mutators'
 import { serverSupabaseClient } from '#supabase/server'
 import * as v from 'valibot'
 
@@ -153,13 +150,13 @@ async function mutate(tx: TxTransaction, userID: string, mutation: Mutation) {
 		case 'createHabit':
 			return insertHabit(tx, userID, v.parse(habitSchema, mutation.args))
 		case 'deleteHabit':
-			return deleteHabit(tx, userID, v.parse(v.string(), mutation.args))
+			return removeHabit(tx, userID, v.parse(v.string(), mutation.args))
 		case 'createHabitEvent':
 			return insertHabitEvent(tx, userID, v.parse(habitEventSchema, mutation.args))
 		case 'createHabitEvents':
 			return insertHabitEvents(tx, userID, v.parse(v.array(habitEventSchema), mutation.args))
 		case 'updateHabitEvent':
-			return updateHabitEvent(tx, userID, v.parse(habitEventSchema, mutation.args))
+			return updateHabitEventInformation(tx, userID, v.parse(habitEventSchema, mutation.args))
 		default:
 			return {
 				habitIDs: [],

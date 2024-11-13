@@ -1,8 +1,5 @@
 <script lang="ts" setup>
 	import * as v from 'valibot'
-	import { getHabit } from '#shared/habits'
-	import { useValidatedParams } from '~/utils/route'
-	import { listHabitEvents } from '#shared/habitEvents'
 	import { getLocalTimeZone, parseDate, today } from '@internationalized/date'
 
 	const rep = useReplicache()

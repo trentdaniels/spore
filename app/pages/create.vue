@@ -1,10 +1,7 @@
 <script lang="ts" setup>
 	import { nanoid } from 'nanoid'
 	import * as v from 'valibot'
-	import { type DailyFrequency, habitSchema } from '#shared/habits'
-	import { dailyFrequencies, weeklyFrequencies } from '#shared/db.schema'
 	import { getLocalTimeZone, parseDate, today } from '@internationalized/date'
-	import type { HabitEvent } from '#shared/habitEvents'
 
 	useHead({ title: 'Create a Habit' })
 
@@ -95,6 +92,16 @@
 					<legend class="p-0 text-4">Schedule</legend>
 
 					<div class="flex flex-col gap-1">
+						<label for="weekly-frequency">Frequency</label>
+						<select id="weekly-frequency" name="weeklyFrequency" required>
+							<option value="" selected disabled>Select Weekly Frequency</option>
+							<option v-for="weeklyFrequency of weeklyFrequencies.enumValues" :key="weeklyFrequency" :value="weeklyFrequency">
+								{{ weeklyFrequency.charAt(0).toLocaleUpperCase() + weeklyFrequency.slice(1) }}
+							</option>
+						</select>
+					</div>
+
+					<div class="flex flex-col gap-1">
 						<p id="days-of-the-week">Days of the week</p>
 						<ToggleGroupRoot v-model="days" aria-labelledby="days-of-the-week">
 							<ToggleGroupItem
@@ -108,17 +115,7 @@
 						</ToggleGroupRoot>
 					</div>
 
-					<div class="flex flex-col gap-1">
-						<label for="weekly-frequency">Frequency</label>
-						<select id="weekly-frequency" name="weeklyFrequency" required>
-							<option value="" selected disabled>Select Weekly Frequency</option>
-							<option v-for="weeklyFrequency of weeklyFrequencies.enumValues" :key="weeklyFrequency" :value="weeklyFrequency">
-								{{ weeklyFrequency.charAt(0).toLocaleUpperCase() + weeklyFrequency.slice(1) }}
-							</option>
-						</select>
-					</div>
-
-					<div class="flex flex-col gap-1">
+					<!-- <div class="flex flex-col gap-1">
 						<CalendarRoot v-slot="{ weekDays, grid }" fixed-weeks>
 							<CalendarHeader class="flex items-center justify-between">
 								<CalendarPrev class="aspect-ratio-square block-8 inline-flex items-center border-transparent bg-transparent text-dark">
@@ -157,7 +154,7 @@
 								</CalendarGrid>
 							</div>
 						</CalendarRoot>
-					</div>
+					</div> -->
 				</fieldset>
 			</div>
 			<button type="submit" class="m-bs-6 inline-block">Create Habit</button>

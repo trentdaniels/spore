@@ -1,4 +1,4 @@
-import * as schema from '#shared/db.schema'
+import * as schema from '#shared/utils/db.schema'
 import { serverSupabaseSession } from '#supabase/server'
 import type { DrizzleConfig, ExtractTablesWithRelations } from 'drizzle-orm'
 import { sql } from 'drizzle-orm'

@@ -1,5 +1,4 @@
-import { habitEvents } from '#shared/db.schema'
-import { type HabitEvent, habitEventSchema } from '#shared/habitEvents'
+import { habitEvents } from '#shared/utils/db.schema'
 import { and, eq, sql } from 'drizzle-orm'
 import * as v from 'valibot'
 
@@ -58,7 +57,7 @@ export async function insertHabitEvent(tx: TxTransaction, userID: string, habitE
 	}
 }
 
-export async function updateHabitEvent(tx: TxTransaction, userID: string, habitEvent: HabitEvent) {
+export async function updateHabitEventInformation(tx: TxTransaction, userID: string, habitEvent: HabitEvent) {
 	try {
 		if (habitEvent.userID !== userID)
 			throw createError({
@@ -79,7 +78,7 @@ export async function updateHabitEvent(tx: TxTransaction, userID: string, habitE
 	} catch (err) {
 		throw createError({
 			statusCode: HttpStatusCode.InternalError,
-			message: `[${updateHabitEvent.name}] habitEvent insertion failed`,
+			message: `[${updateHabitEventInformation.name}] habitEvent insertion failed`,
 			cause: err,
 		})
 	}

@@ -2,7 +2,7 @@
 export default defineNuxtConfig({
 	ssr: false,
 	sourcemap: true,
-	compatibilityDate: '2024-11-04',
+	compatibilityDate: '2024-11-11',
 	future: { compatibilityVersion: 4 },
 	devtools: { enabled: true },
 	experimental: {
@@ -20,9 +20,6 @@ export default defineNuxtConfig({
 		},
 	},
 	css: ['@/assets/styles/main.css'],
-	imports: {
-		dirs: ['shared/**'],
-	},
 	supabase: {
 		redirectOptions: {
 			login: '/login',
