@@ -4,8 +4,9 @@ import * as v from 'valibot'
 import { createBadRequestError } from './http'
 
 type BaseSchema = v.BaseSchema<unknown, unknown, BaseIssue<unknown>>
+type BaseSchemaAsync = v.BaseSchemaAsync<unknown, unknown, BaseIssue<unknown>>
 
-export const getValibotQuery = async <TSchema extends BaseSchema>(event: H3Event, schema: TSchema) => {
+export const getValibotQuery = async <TSchema extends BaseSchema | BaseSchemaAsync>(event: H3Event, schema: TSchema) => {
 	try {
 		const query = getQuery(event)
 		const parsedQuery = await v.parseAsync(schema, query)
@@ -15,7 +16,7 @@ export const getValibotQuery = async <TSchema extends BaseSchema>(event: H3Event
 	}
 }
 
-export const getValibotBody = async <TSchema extends BaseSchema>(event: H3Event, schema: TSchema) => {
+export const getValibotBody = async <TSchema extends BaseSchema | BaseSchemaAsync>(event: H3Event, schema: TSchema) => {
 	try {
 		const requestBody = await readBody(event)
 		const parsedBody = await v.parseAsync(schema, requestBody)

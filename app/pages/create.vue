@@ -8,156 +8,207 @@
 	const rep = useReplicache()
 	const user = useSupabaseUser()
 
-	const days = ref<DailyFrequency[]>([])
+	// TODO: Implement a toast for success/fail
+	const { handleSubmit, isSubmitting } = useForm({
+		validationSchema: toTypedSchema(
+			v.object({
+				name: v.pipe(
+					v.optional(habitSchema.entries.name, ''),
+					v.nonEmpty('Name is required.'),
+					v.maxLength(50, 'Name can be no more than 50 characters.'),
+					v.trim()
+				),
+				description: v.pipe(
+					v.nullish(habitSchema.entries.description, ''),
+					v.maxLength(100, 'Description can be no more than 100 characters.'),
+					v.trim()
+				),
+				weeklyFrequency: v.pipe(
+					v.optional(v.string(), ''),
+					v.nonEmpty('Weekly Frequency is required.'),
+					v.picklist(habitSchema.entries.weeklyFrequency.options, 'Must be a valid weekly frequency.')
+				),
+				dailyFrequency: v.pipe(
+					v.optional(v.array(v.string()), []),
+					v.nonEmpty('Daily Frequency is required.'),
+					v.array(v.picklist(habitSchema.entries.dailyFrequency.item.options), 'Must only contain daily frequencies.')
+				),
+			})
+		),
+	})
 
-	const onSubmit = async (e: Event) => {
-		const formData = new FormData(e.target as HTMLFormElement)
-		formData.append('dailyFrequency', JSON.stringify(toRaw(days.value)))
+	const onSubmit = handleSubmit(async (values) => {
+		if (!user.value) return
+		const habitId = nanoid()
+		const userId = user.value.id
+		const dailyFrequencyValues = values.dailyFrequency.map((dF) => dailyFrequencies.enumValues.indexOf(dF)).toSorted((a, b) => a - b)
 
-		const schema = v.object({
-			...v.pick(habitSchema, ['name', 'description', 'weeklyFrequency']).entries,
-			dailyFrequency: v.pipe(
-				v.string(),
-				v.transform((arrStr) => JSON.parse(arrStr)),
-				habitSchema.entries.dailyFrequency
-			),
+		const habitEvents = dailyFrequencyValues.map((dayOfWeek) => {
+			let nextScheduledDate = today(getLocalTimeZone())
+			while (nextScheduledDate.toDate(getLocalTimeZone()).getDay() !== dayOfWeek) nextScheduledDate = nextScheduledDate.add({ days: 1 })
+
+			return {
+				id: nanoid(),
+				userID: userId,
+				habitID: habitId,
+				frequency: values.weeklyFrequency,
+				completed: false,
+				completedAt: null,
+				scheduledAt: nextScheduledDate.toString(),
+			} satisfies HabitEvent
 		})
 
-		const result = v.safeParse(schema, Object.fromEntries(formData.entries()))
-		if (result.success && user.value) {
-			const habitId = nanoid()
-			const dailyFrequencyValues = toRaw(days.value)
-				.map((dF) => dailyFrequencies.enumValues.indexOf(dF))
-				.toSorted((a, b) => a - b)
-
-			const habitEvents = dailyFrequencyValues.map((dayOfWeek) => {
-				let nextScheduledDate = today(getLocalTimeZone())
-				while (nextScheduledDate.toDate(getLocalTimeZone()).getDay() !== dayOfWeek) nextScheduledDate = nextScheduledDate.add({ days: 1 })
-
-				return {
-					id: nanoid(),
-					userID: user.value!.id,
-					habitID: habitId,
-					frequency: result.output.weeklyFrequency,
-					completed: false,
-					completedAt: null,
-					scheduledAt: nextScheduledDate.toString(),
-				} satisfies HabitEvent
+		const todayEvent = habitEvents.find((habitEvent) => habitEvent.scheduledAt === today(getLocalTimeZone()).toString())
+		if (todayEvent)
+			habitEvents.push({
+				...todayEvent,
+				id: nanoid(),
+				scheduledAt: parseDate(todayEvent.scheduledAt)
+					.add({ weeks: todayEvent.frequency === 'biweekly' ? 2 : 1 })
+					.toString(),
 			})
 
-			const todayEvent = habitEvents.find((habitEvent) => habitEvent.scheduledAt === today(getLocalTimeZone()).toString())
-			if (todayEvent)
-				habitEvents.push({
-					...todayEvent,
-					id: nanoid(),
-					scheduledAt: parseDate(todayEvent.scheduledAt)
-						.add({ weeks: todayEvent.frequency === 'biweekly' ? 2 : 1 })
-						.toString(),
-				})
-
-			await Promise.all([
-				rep.mutate.createHabit({
-					name: result.output.name,
-					id: habitId,
-					userID: user.value.id,
-					description: result.output.description,
-					dailyFrequency: toRaw(days.value),
-					weeklyFrequency: result.output.weeklyFrequency,
-				}),
-				rep.mutate.createHabitEvents(habitEvents),
-			])
-			navigateTo(`/habits/${habitId}`)
-		}
-	}
+		await Promise.all([
+			rep.mutate.createHabit({
+				name: values.name,
+				id: habitId,
+				userID: userId,
+				description: values.description,
+				dailyFrequency: values.dailyFrequency,
+				weeklyFrequency: values.weeklyFrequency,
+			}),
+			rep.mutate.createHabitEvents(habitEvents),
+		])
+		navigateTo(`/habits/${habitId}`)
+	})
 </script>
 
 <template>
 	<div>
-		<h1>Create a Habit</h1>
+		<header>
+			<h1 class="text-balance text-2xl">Create a Habit</h1>
+		</header>
 		<form class="m-block-6" @submit.prevent="onSubmit">
-			<div class="flex flex-wrap gap-6">
-				<fieldset class="min-inline-[min(45ch,100%)] flex flex-grow-2 flex-basis-none flex-col p-inline-0">
-					<legend class="p-0 text-4">Habit Information</legend>
-					<div class="flex flex-col gap-1">
-						<label for="name">Name</label>
-						<input id="name" required type="text" name="name" />
+			<div class="grid gap-8">
+				<fieldset class="flex flex-col p-block-0 p-inline-0 [&>*:not(legend)]:m-bs-2">
+					<legend class="p-0 text-size-xl font-bold">Basic Information</legend>
+					<div class="flex flex-col items-start gap-1">
+						<!-- TODO: Improve styling!  -->
+						<Field v-slot="{ field, meta }" name="name">
+							<label class="text-size-sm" for="name">Name</label>
+							<input
+								id="name"
+								v-bind="field"
+								type="text"
+								class="inline-[min(100%,65ch)] appearance-none border-1 border-rd p-block-2.5 p-inline-4 leading-tight"
+								:aria-describedby="`${field.name}-error-message`"
+								:aria-required="meta.required"
+								:aria-invalid="!meta.valid && meta.touched"
+								maxlength="50"
+							/>
+							<ErrorMessage :id="`${field.name}-error-message`" class="text-sm" :name="field.name" />
+						</Field>
 					</div>
 
-					<div class="m-bs-2 flex flex-col gap-1">
-						<label for="description">Description</label>
-						<textarea id="description" name="description" class="resize-y"></textarea>
+					<div class="flex flex-col items-start gap-1">
+						<Field v-slot="{ field, meta }" name="description">
+							<label class="text-sm" for="description">Description (Optional)</label>
+							<!-- TODO: Improve  styling!  -->
+							<textarea
+								id="description"
+								v-bind="field"
+								maxlength="100"
+								:aria-describedby="`${field.name}-error-message`"
+								:aria-required="meta.required"
+								:aria-invalid="!meta.valid && meta.touched"
+								class="inline-[min(100%,65ch)] resize-y appearance-none border-1 border-rd p-block-2.5 p-inline-4 leading-tight"
+							></textarea>
+							<ErrorMessage :id="`${field.name}-error-message`" class="text-sm" :name="field.name" />
+						</Field>
 					</div>
 				</fieldset>
-				<fieldset class="min-inline-[min(25ch,100%)] flex flex-grow-1 flex-basis-none flex-col gap-4 p-block-2 p-inline-0">
-					<legend class="p-0 text-4">Schedule</legend>
 
-					<div class="flex flex-col gap-1">
-						<label for="weekly-frequency">Frequency</label>
-						<select id="weekly-frequency" name="weeklyFrequency" required>
-							<option value="" selected disabled>Select Weekly Frequency</option>
-							<option v-for="weeklyFrequency of weeklyFrequencies.enumValues" :key="weeklyFrequency" :value="weeklyFrequency">
-								{{ weeklyFrequency.charAt(0).toLocaleUpperCase() + weeklyFrequency.slice(1) }}
-							</option>
-						</select>
-					</div>
+				<fieldset class="flex flex-col appearance-none p-block-0 p-inline-0 [&>*:not(legend)]:m-bs-4">
+					<legend class="p-0 text-size-xl font-bold">Schedule</legend>
 
-					<div class="flex flex-col gap-1">
-						<p id="days-of-the-week">Days of the week</p>
-						<ToggleGroupRoot v-model="days" aria-labelledby="days-of-the-week">
-							<ToggleGroupItem
-								v-for="dailyFrequency of dailyFrequencies.enumValues"
-								:key="dailyFrequency"
-								class="data-[state=on]:bg-dark data-[state=on]:text-white"
-								:value="dailyFrequency"
+					<div class="[&>*+*]:m-bs-1">
+						<Field v-slot="{ field, meta }" name="weeklyFrequency">
+							<p id="weekly-frequency" class="text-sm">Weekly Frequency</p>
+							<RadioGroupRoot
+								v-bind="field"
+								aria-labelledby="weekly-frequency"
+								:aria-describedby="`${field.name}-error-message`"
+								:aria-invalid="!meta.valid && meta.touched"
+								:aria-required="meta.required"
+								class="[&>*+*]:m-bs-2"
+								:name="field.name"
 							>
-								{{ dailyFrequency.charAt(0).toLocaleUpperCase() + dailyFrequency.slice(1) }}
-							</ToggleGroupItem>
-						</ToggleGroupRoot>
+								<div v-for="weeklyFrequency of weeklyFrequencies.enumValues" :key="weeklyFrequency" class="flex items-center">
+									<RadioGroupItem
+										:id="weeklyFrequency"
+										name="weeklyFrequency"
+										class="aspect-square inline-[28px] border-1 border-rd-full bg-transparent"
+										:value="weeklyFrequency"
+									>
+										<RadioGroupIndicator
+											class="block-full inline-full flex items-center justify-center after:block after:aspect-square after:block-[12px] after:inline-[12px] after:border-rd-full after:bg-dark after:content-['']"
+										/>
+									</RadioGroupItem>
+									<label class="p-is-2" :for="weeklyFrequency">
+										{{ weeklyFrequency.charAt(0).toLocaleUpperCase() + weeklyFrequency.slice(1) }}
+									</label>
+								</div>
+							</RadioGroupRoot>
+							<ErrorMessage :id="`${field.name}-error-message`" class="text-sm" :name="field.name" />
+						</Field>
 					</div>
 
-					<!-- <div class="flex flex-col gap-1">
-						<CalendarRoot v-slot="{ weekDays, grid }" fixed-weeks>
-							<CalendarHeader class="flex items-center justify-between">
-								<CalendarPrev class="aspect-ratio-square block-8 inline-flex items-center border-transparent bg-transparent text-dark">
-									<Icon name="radix-icons:chevron-left" class="block-6 inline-6" />
-								</CalendarPrev>
-								<CalendarHeading class="fw-medium" />
-								<CalendarNext class="aspect-ratio-square block-8 inline-flex items-center border-transparent bg-transparent text-dark">
-									<Icon name="radix-icons:chevron-right" class="block-6 inline-6" />
-								</CalendarNext>
-							</CalendarHeader>
-							<div class="flex flex-col">
-								<CalendarGrid v-for="month of grid" :key="month.value.toString()" class="inline-full select-none border-collapse">
-									<CalendarGridHead>
-										<CalendarGridRow class="grid grid-cols-7 inline-full">
-											<CalendarHeadCell v-for="day of weekDays" :key="day">
-												{{ day }}
-											</CalendarHeadCell>
-										</CalendarGridRow>
-									</CalendarGridHead>
-									<CalendarGridBody class="grid">
-										<CalendarGridRow v-for="(weekDates, index) of month.rows" :key="`weekDate-${index}`" class="grid grid-cols-7">
-											<CalendarCell
-												v-for="weekDate of weekDates"
-												:key="weekDate.toString()"
-												class="relative text-center text-sm"
-												:date="weekDate"
-											>
-												<CalendarCellTrigger
-													:day="weekDate"
-													:month="month.value"
-													class="data-[selected]:!bg-green10 relative m-inline-auto block-8 inline-8 flex items-center justify-center whitespace-nowrap rounded-full text-sm text-black font-normal outline-none data-[unavailable]:pointer-events-none before:absolute before:top-[5px] before:hidden before:h-1 before:w-1 before:rounded-full before:bg-white data-[highlighted]:bg-green5 hover:bg-green5 data-[disabled]:text-black/30 data-[selected]:text-white data-[unavailable]:text-black/30 data-[unavailable]:line-through focus:shadow-[0_0_0_2px] focus:shadow-black data-[today]:before:block data-[today]:before:bg-green9"
-												/>
-											</CalendarCell>
-										</CalendarGridRow>
-									</CalendarGridBody>
-								</CalendarGrid>
-							</div>
-						</CalendarRoot>
-					</div> -->
+					<div class="[&>*+*]:m-bs-1">
+						<!-- TODO: Improve  styling!  -->
+						<!-- TODO:
+								Open a PR for Reka-UI to separate an id from the name.
+								Context: Reka does not currently support the same "name" attribute when building out hidden inputs.
+								This would be useful for checkboxes to retrieve values using the native FormData object.
+								If we add an "id" property and create support for the same "name" property inside Reka's VisuallyHiddenInput,
+								then we can get the best of both worlds for identifiers and names
+							 -->
+						<Field v-slot="{ field, meta }" name="dailyFrequency">
+							<p id="days-of-the-week" class="text-sm">Daily Frequency (Select all that apply.)</p>
+							<CheckboxGroupRoot
+								v-bind="field"
+								role="group"
+								:aria-required="meta.required"
+								:aria-invalid="meta.touched && !meta.touched"
+								aria-labelledby="days-of-the-week"
+								:aria-describedby="`${field.name}-error-message`"
+								class="flex flex-wrap items-center gap-2"
+								:name="field.name"
+							>
+								<CheckboxRoot
+									v-for="dailyFrequency of dailyFrequencies.enumValues"
+									:id="dailyFrequency"
+									:key="dailyFrequency"
+									class="aspect-square inline-10.5 border-1 border-rd-full bg-light p-0 text-dark data-[state=checked]:bg-dark data-[state=checked]:text-light"
+									:value="dailyFrequency"
+									:aria-label="dailyFrequency"
+									:title="dailyFrequency"
+									:name="field.name"
+								>
+									{{ dailyFrequency.charAt(0).toLocaleUpperCase() }}
+								</CheckboxRoot>
+							</CheckboxGroupRoot>
+							<ErrorMessage :id="`${field.name}-error-message`" class="text-sm" :name="field.name" />
+						</Field>
+					</div>
 				</fieldset>
 			</div>
-			<button type="submit" class="m-bs-6 inline-block">Create Habit</button>
+			<button
+				:aria-disabled="isSubmitting"
+				type="submit"
+				class="m-bs-10 inline-block border-dark border-rd-md b-solid bg-dark p-block-2 p-inline-4 text-light"
+			>
+				Create Habit
+			</button>
 		</form>
 	</div>
 </template>

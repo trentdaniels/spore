@@ -8,7 +8,7 @@ export default defineNuxtConfig({
 	experimental: {
 		typedPages: true,
 	},
-	modules: ['@nuxtjs/supabase', '@nuxt/eslint', '@unocss/nuxt', '@vueuse/nuxt', 'radix-vue/nuxt', '@nuxt/icon'],
+	modules: ['@nuxtjs/supabase', '@nuxt/eslint', '@unocss/nuxt', '@vueuse/nuxt', '@nuxt/icon', 'reka-ui/nuxt', '@vee-validate/nuxt'],
 	runtimeConfig: {
 		public: {
 			replicacheLicense: '',

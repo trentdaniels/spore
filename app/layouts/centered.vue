@@ -1,5 +1,7 @@
 <template>
-	<main id="main-content" class="m-inline-auto max-inline-600px min-block-100% p-block-6 p-inline-5">
-		<slot></slot>
-	</main>
+	<div class="m-inline-auto inline-[min(60ch,80dvw)] min-block-100% flex flex-col">
+		<main id="main-content" class="flex-1">
+			<slot></slot>
+		</main>
+	</div>
 </template>

@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 	import * as v from 'valibot'
 	import { getLocalTimeZone, parseDate, today } from '@internationalized/date'
+	import { useDateFormatter } from 'reka-ui'
 
 	const rep = useReplicache()
 	const habitId = useValidatedParams(v.string(), 'habitId')
@@ -27,7 +28,10 @@
 		}
 	})
 
-	// TODO: Figure out a way to make this dynamic. On initial navigation to this page, the title renders correctly.
+	const dateFormatter = useDateFormatter(navigator.language)
+	const formatDate = (calendarDate: string) => dateFormatter.custom(parseDate(calendarDate).toDate(getLocalTimeZone()), {})
+
+	// FIXME: Figure out a way to make this dynamic. On initial navigation to this page, the title renders correctly.
 	// Other navigations cannot resolve the habit value name, so we're defaulting to "Habit Details"
 	useHead({ title: () => 'Habit Details' })
 </script>
@@ -35,11 +39,11 @@
 <template>
 	<div v-if="habit && isLoaded">
 		<header>
-			<h1 class="fw-extrabold decoration-underline">{{ habit.name }}</h1>
+			<h1 class="text-2xl font-bold">{{ habit.name }}</h1>
 		</header>
 
 		<section aria-labelledby="quick-stats">
-			<h2 id="quick-stats">Quick Stats</h2>
+			<h2 id="quick-stats" class="text-xl">Quick Stats</h2>
 			<dl class="flex flex-wrap gap-6">
 				<div class="flex flex-col items-start">
 					<dt>Description</dt>
@@ -48,7 +52,9 @@
 				</div>
 				<div class="flex flex-col items-start">
 					<dt>Next Completion Date</dt>
-					<dd v-if="habit.nextCompletionDate">{{ habit.nextCompletionDate }}</dd>
+					<dd v-if="habit.nextCompletionDate">
+						{{ formatDate(habit.nextCompletionDate) }}
+					</dd>
 					<dd v-else>-</dd>
 				</div>
 
@@ -60,11 +66,11 @@
 		</section>
 
 		<section aria-labelledby="habit-history">
-			<h2 id="habit-history">Schedule</h2>
+			<h2 id="habit-history" class="text-xl">Schedule</h2>
 			<dl class="flex flex-wrap gap-6">
 				<div class="flex flex-col items-start">
 					<dt>Last Completed</dt>
-					<dd v-if="habit.lastCompletedDate">{{ habit.lastCompletedDate }}</dd>
+					<dd v-if="habit.lastCompletedDate">{{ formatDate(habit.lastCompletedDate) }}</dd>
 					<dd v-else>-</dd>
 				</div>
 

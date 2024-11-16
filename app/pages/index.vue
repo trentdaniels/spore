@@ -61,44 +61,45 @@
 		<template v-if="isLoaded && vm">
 			<div class="m-bs-4 flex flex-wrap gap-8">
 				<section aria-labelledby="today-habits" class="min-inline-[min(45ch,100%)] flex-grow-2 flex-basis-none">
-					<h2 id="today-habits" class="m-be-2 text-2xl">Habits</h2>
-					<ul class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,250px),1fr))] gap-4">
+					<h2 id="today-habits" class="m-be-2 text-xl">Habits to Complete</h2>
+					<ul class="[&>*+*]:m-bs-4">
 						<li v-if="!vm.todayHabits.length">
 							No new habits to take care of today! Try <NuxtLink to="/create">creating one here</NuxtLink>.
 						</li>
 						<template v-else>
-							<li
-								v-for="habitEvent of vm.todayHabits"
-								:key="habitEvent.habit.id"
-								class="flex flex-col items-start gap-4 border-2 border-dark rounded-2xl border-solid bg-light p-block-12 p-inline-[clamp(1rem,0rem+4vi,2.5rem)]"
-							>
-								<NuxtLink class="inline-block text-balance text-4xl fw-bold decoration-none" :to="`/habits/${habitEvent.habit.id}`">
+							<li v-for="habitEvent of vm.todayHabits" :key="habitEvent.habit.id">
+								<!-- <NuxtLink class="inline-block text-balance text-4xl fw-bold decoration-none" :to="`/habits/${habitEvent.habit.id}`">
 									{{ habitEvent.habit.name }}
-								</NuxtLink>
+								</NuxtLink> -->
 
 								<Toggle
-									v-slot="{ pressed }"
-									:pressed="habitEvent.event.completed"
-									class="m-bs-auto flex items-center gap-2 rounded-lg bg-dark p-block-2 p-inline-4 text-size-5 text-light"
-									@update:pressed="toggleComplete($event, habitEvent.event)"
+									v-slot="{ modelValue: pressed }"
+									:model-value="habitEvent.event.completed"
+									class="m-bs-auto inline-100% flex items-center gap-2 border-2 border-dark rounded-lg border-solid bg-transparent p-block-3 p-inline-[clamp(1rem,0rem+4dvi,1.5rem)] text-size-5 text-dark"
+									@update:model-value="toggleComplete($event, habitEvent.event)"
 								>
-									<Icon class="p-block-2 p-inline-2" :name="pressed ? 'radix-icons:check-circled' : 'radix-icons:circle'" />
-									Mark as Complete
+									<Icon
+										:class="{ 'text-dark': pressed }"
+										size="1.25em"
+										class="p-block-2 p-inline-2"
+										:name="pressed ? 'gravity-ui:circle-check-fill' : 'gravity-ui:circle'"
+									/>
+									<span class="text-dark decoration-2" :class="{ 'decoration-line-through': pressed, 'text-dark-1': pressed }">
+										{{ habitEvent.habit.name }}
+									</span>
 								</Toggle>
 							</li>
-							<li
-								class="flex flex-col items-start gap-4 border-2 border-dark rounded-2xl border-solid bg-white p-block-12 p-inline-[clamp(1rem,0rem+4vi,2.5rem)]"
-							>
-								<p class="inline-block text-balance text-4xl fw-bold decoration-none">Add More Habits</p>
+							<li class="flex items-start gap-2 border-2 p-block-1 p-inline-[clamp(1rem,0rem+4dvi,1.5rem)] text-size-4">
+								<Icon size="1.25em" name="gravity-ui:circle-plus" />
 
-								<p><NuxtLink to="/create">Create new habits</NuxtLink> and track them in the dashboard.</p>
+								<p class=""><NuxtLink class="font-bold" to="/create">Create new habits</NuxtLink> and track them in the dashboard.</p>
 							</li>
 						</template>
 					</ul>
 				</section>
 
 				<section class="min-inline-[min(25ch,100%)] flex-grow-1 flex-basis-none gap-4" aria-labelledby="quick-stats">
-					<h2 id="quick-stats" class="m-be-2 text-2xl">Quick Stats</h2>
+					<h2 id="quick-stats" class="m-be-2 text-xl">Quick Stats</h2>
 					<div class="grid border-2 border-dark rounded-2xl b-solid bg-light p-block-8 p-inline-[clamp(1rem,0rem+4vi,2.5rem)]">
 						<span class="text-5xl font-bold">{{ vm.totalHabits.length }}</span> Active Habits
 					</div>
@@ -111,7 +112,7 @@
 				</section>
 			</div>
 			<section aria-labelledby="all-habits" class="m-bs-8">
-				<h2 id="all-habits" class="m-be-2 text-2xl">All Habits</h2>
+				<h2 id="all-habits" class="m-be-2 text-xl">All Habits</h2>
 				<ul class="grid gap-4">
 					<li v-if="!vm.totalHabits.length">You don't have any habits created! Try <NuxtLink to="/create">creating one here</NuxtLink>.</li>
 					<li
