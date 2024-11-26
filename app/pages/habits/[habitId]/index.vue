@@ -35,10 +35,7 @@
 
 	const isDateUnavailable: Matcher = (date) => {
 		const habitDetails = habit.value
-		if (
-			!habitDetails ||
-			!isBetweenInclusive(date, parseDate(habitDetails.events.at(0)!.scheduledAt), parseDate(habitDetails.events.at(-1)!.scheduledAt))
-		)
+		if (!habitDetails || !isBetweenInclusive(date, parseDate(habitDetails.events.at(0)!.scheduledAt), today(getLocalTimeZone())))
 			return false
 		return !habitDetails.events.some((event) => isSameDay(parseDate(event.scheduledAt), date))
 	}
@@ -117,7 +114,7 @@
 				fixed-weeks
 				readonly
 				:min-value="parseDate(habit.events.at(0)!.scheduledAt)"
-				:max-value="parseDate(habit.events.at(-1)!.scheduledAt)"
+				:max-value="today(getLocalTimeZone())"
 				:is-date-unavailable="isDateUnavailable"
 			>
 				<CalendarHeader class="flex items-center justify-between">
@@ -142,14 +139,35 @@
 							<CalendarGridRow
 								v-for="(weekDates, index) of month.rows"
 								:key="`weekDate-${index}`"
-								class="grid grid-cols-7 justify-items-center"
+								class="grid grid-cols-7 justify-items-center grid-items-start"
 							>
-								<CalendarCell v-for="weekDate of weekDates" :key="weekDate.toString()" class="text-center text-sm" :date="weekDate">
+								<CalendarCell
+									v-for="weekDate of weekDates"
+									:key="weekDate.toString()"
+									class="p-block-2 text-center text-sm"
+									:date="weekDate"
+								>
 									<CalendarCellTrigger
-										class="block-8 inline-8 flex items-center justify-center border-rd-full text-sm data-[disabled]:text-black/30 data-[unavailable]:text-black/30 data-[unavailable]:decoration-line-through"
+										v-slot="{ dayValue }"
+										class="block-8 inline-8 flex flex-col items-center justify-start gap-1 border-rd-md text-sm data-[disabled]:text-black/30 data-[unavailable]:text-black/30"
 										:day="weekDate"
 										:month="month.value"
-									/>
+									>
+										<span class="line-height-none">{{ dayValue }}</span>
+										<template v-if="isBetweenInclusive(weekDate, parseDate(habit.events.at(0)!.scheduledAt), today(getLocalTimeZone()))">
+											<Icon
+												v-if="!habit.events.some((event) => isSameDay(parseDate(event.scheduledAt), weekDate))"
+												class="shrink-0"
+												name="gravity-ui:minus"
+											/>
+											<Icon
+												v-else-if="habit.events.find((event) => isSameDay(parseDate(event.scheduledAt), weekDate))?.completed"
+												class="shrink-0 text-green-7"
+												name="gravity-ui:check"
+											/>
+											<Icon v-else class="shrink-0 text-red-7" name="gravity-ui:xmark" />
+										</template>
+									</CalendarCellTrigger>
 								</CalendarCell>
 							</CalendarGridRow>
 						</CalendarGridBody>
