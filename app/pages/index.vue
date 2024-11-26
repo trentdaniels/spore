@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 	import { DateFormatter, getLocalTimeZone, isToday, now, parseDate, today } from '@internationalized/date'
 	import { TransitionPresets } from '@vueuse/core'
+	import { dailyFrequencies } from '#shared/utils/db.schema'
 
 	useHead({ title: 'Dashboard' })
 
@@ -68,14 +69,10 @@
 						</li>
 						<template v-else>
 							<li v-for="habitEvent of vm.todayHabits" :key="habitEvent.habit.id">
-								<!-- <NuxtLink class="inline-block text-balance text-4xl fw-bold decoration-none" :to="`/habits/${habitEvent.habit.id}`">
-									{{ habitEvent.habit.name }}
-								</NuxtLink> -->
-
 								<Toggle
 									v-slot="{ modelValue: pressed }"
 									:model-value="habitEvent.event.completed"
-									class="m-bs-auto inline-100% flex items-center gap-2 border-2 border-dark rounded-lg border-solid bg-transparent p-block-3 p-inline-[clamp(1rem,0rem+4dvi,1.5rem)] text-size-5 text-dark"
+									class="m-bs-auto inline-100% flex items-center gap-2 border-2 border-dark rounded-lg border-solid bg-transparent p-block-3 p-inline-[clamp(1rem,0rem+4dvi,1.5rem)] text-size-5 text-dark data-[state=on]:text-dark/30"
 									@update:model-value="toggleComplete($event, habitEvent.event)"
 								>
 									<Icon
@@ -84,7 +81,7 @@
 										class="p-block-2 p-inline-2"
 										:name="pressed ? 'gravity-ui:circle-check-fill' : 'gravity-ui:circle'"
 									/>
-									<span class="text-dark decoration-2" :class="{ 'decoration-line-through': pressed, 'text-dark-1': pressed }">
+									<span class="decoration-2" :class="{ 'decoration-line-through': pressed }">
 										{{ habitEvent.habit.name }}
 									</span>
 								</Toggle>
@@ -92,7 +89,7 @@
 							<li class="flex items-start gap-2 border-2 p-block-1 p-inline-[clamp(1rem,0rem+4dvi,1.5rem)] text-size-4">
 								<Icon size="1.25em" name="gravity-ui:circle-plus" />
 
-								<p class=""><NuxtLink class="font-bold" to="/create">Create new habits</NuxtLink> and track them in the dashboard.</p>
+								<p><NuxtLink class="font-bold" to="/create">Create new habits</NuxtLink> and track them in the dashboard.</p>
 							</li>
 						</template>
 					</ul>

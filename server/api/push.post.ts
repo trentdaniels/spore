@@ -18,9 +18,7 @@ const pushBody = v.object({
 })
 
 export default defineEventHandler(async (event) => {
-	const { id: userID } = await ensureUser(event)
-
-	const push = await getValibotBody(event, pushBody)
+	const [{ id: userID }, push] = await Promise.all([ensureUser(event), getValibotBody(event, pushBody)])
 
 	const allAffected = {
 		habitIDs: new Set<string>(),

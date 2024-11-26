@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 	useHead({ title: 'Login' })
-	definePageMeta({ layout: 'centered' })
+	definePageMeta({ layout: 'centered', middleware: 'already-authenticated' })
 
 	const client = useSupabaseClient()
 	const location = useBrowserLocation()

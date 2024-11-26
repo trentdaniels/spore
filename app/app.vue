@@ -1,6 +1,5 @@
 <script setup lang="ts">
 	const consoleLog = (err: unknown) => {
-		debugger
 		console.log(JSON.stringify(err, undefined, 2))
 	}
 </script>

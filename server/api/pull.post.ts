@@ -3,11 +3,16 @@ import type { PatchOperation, PullResponse } from 'replicache'
 import * as v from 'valibot'
 
 const cookieSchema = v.object({ order: v.number(), cvrID: v.string() })
+const clientGroupWithCookieSchema = v.object({
+	clientGroupID: v.string(),
+	cookie: v.nullable(cookieSchema),
+})
 
 export default defineEventHandler(async (event): Promise<PullResponse> => {
-	const { id: userID } = await ensureUser(event)
-
-	const { clientGroupID, cookie } = await getValibotBody(event, v.object({ clientGroupID: v.string(), cookie: v.nullable(cookieSchema) }))
+	const [{ id: userID }, { clientGroupID, cookie }] = await Promise.all([
+		ensureUser(event),
+		getValibotBody(event, clientGroupWithCookieSchema),
+	])
 
 	// cvrKey -> ClientViewRecord
 	const cvrCache = useStorage('cvr')

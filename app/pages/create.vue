@@ -2,6 +2,7 @@
 	import { nanoid } from 'nanoid'
 	import * as v from 'valibot'
 	import { getLocalTimeZone, parseDate, today } from '@internationalized/date'
+	import { dailyFrequencies, weeklyFrequencies } from '#shared/utils/db.schema'
 
 	useHead({ title: 'Create a Habit' })
 
@@ -15,13 +16,13 @@
 				name: v.pipe(
 					v.optional(habitSchema.entries.name, ''),
 					v.nonEmpty('Name is required.'),
-					v.maxLength(50, 'Name can be no more than 50 characters.'),
-					v.trim()
+					v.trim(),
+					v.maxLength(50, 'Name can be no more than 50 characters.')
 				),
 				description: v.pipe(
 					v.nullish(habitSchema.entries.description, ''),
-					v.maxLength(100, 'Description can be no more than 100 characters.'),
-					v.trim()
+					v.trim(),
+					v.maxLength(100, 'Description can be no more than 100 characters.')
 				),
 				weeklyFrequency: v.pipe(
 					v.optional(v.string(), ''),
@@ -38,7 +39,7 @@
 	})
 
 	const onSubmit = handleSubmit(async (values) => {
-		if (!user.value) return
+		if (!user.value || isSubmitting.value) return
 		const habitId = nanoid()
 		const userId = user.value.id
 		const dailyFrequencyValues = values.dailyFrequency.map((dF) => dailyFrequencies.enumValues.indexOf(dF)).toSorted((a, b) => a - b)
@@ -177,8 +178,8 @@
 							<CheckboxGroupRoot
 								v-bind="field"
 								role="group"
-								:aria-required="meta.required"
-								:aria-invalid="meta.touched && !meta.touched"
+								required
+								:aria-invalid="meta.touched && !meta.valid"
 								aria-labelledby="days-of-the-week"
 								:aria-describedby="`${field.name}-error-message`"
 								class="flex flex-wrap items-center gap-2"
