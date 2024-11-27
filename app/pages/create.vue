@@ -156,7 +156,7 @@
 										/>
 									</RadioGroupItem>
 									<label class="p-is-2" :for="weeklyFrequency">
-										{{ weeklyFrequency.charAt(0).toLocaleUpperCase() + weeklyFrequency.slice(1) }}
+										{{ weeklyFrequency.at(0)?.toLocaleUpperCase() + weeklyFrequency.slice(1) }}
 									</label>
 								</div>
 							</RadioGroupRoot>
@@ -195,7 +195,7 @@
 									:title="dailyFrequency"
 									:name="field.name"
 								>
-									{{ dailyFrequency.charAt(0).toLocaleUpperCase() }}
+									{{ dailyFrequency.at(0)?.toLocaleUpperCase() }}
 								</CheckboxRoot>
 							</CheckboxGroupRoot>
 							<ErrorMessage :id="`${field.name}-error-message`" class="text-sm" :name="field.name" />
